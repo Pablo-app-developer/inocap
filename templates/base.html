@@ -1,0 +1,54 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Capacidad Instalada — INO{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+  <script>
+    // Aplica el tema guardado antes de pintar (evita parpadeo).
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t) document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {}
+    })();
+  </script>
+  <script src="{% static 'js/htmx.min.js' %}" defer></script>
+</head>
+<body>
+  <header class="navbar">
+    <a class="brand" href="{% url 'capacidad:dashboard' %}">
+      <span class="dot" aria-hidden="true"></span>
+      Capacidad Instalada · INO
+    </a>
+    <nav aria-label="Principal">
+      <a href="{% url 'capacidad:dashboard' %}" class="{% if seccion == 'dashboard' %}active{% endif %}">Dashboard</a>
+      <a href="{% url 'capacidad:mensual' %}" class="{% if seccion == 'mensual' %}active{% endif %}">Vista mensual</a>
+      <a href="/admin/">Administración</a>
+    </nav>
+    <span class="spacer"></span>
+    <button class="btn" type="button" id="theme-toggle" aria-label="Cambiar tema claro/oscuro" title="Cambiar tema">
+      <span aria-hidden="true">◐</span> Tema
+    </button>
+  </header>
+
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+
+  <script>
+    document.getElementById('theme-toggle').addEventListener('click', function () {
+      var root = document.documentElement;
+      var current = root.getAttribute('data-theme');
+      if (!current) {
+        current = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      var next = current === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('theme', next); } catch (e) {}
+    });
+  </script>
+</body>
+</html>

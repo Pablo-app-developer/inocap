@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · Capacidad Instalada{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Dashboard</h1>
+<p class="page-sub">Capacidad instalada por unidad de negocio.</p>
+
+{% if not tarjetas %}
+  <div class="card"><div class="card-body">
+    No hay unidades de negocio. Carga datos con <code>python manage.py seed_demo</code>
+    o desde <a href="/admin/">Administración</a>.
+  </div></div>
+{% else %}
+<div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+  {% for t in tarjetas %}
+  <div class="card"><div class="card-body">
+    <div style="display:flex; justify-content:space-between; align-items:start; gap:.5rem;">
+      <h3 style="margin:0;">{{ t.unidad.nombre }}</h3>
+      <span class="badge muted">{{ t.num_salas }} sala{{ t.num_salas|pluralize }}</span>
+    </div>
+
+    {% if t.vm %}
+      <div class="grid kpis" style="margin-top:1rem;">
+        <div class="kpi">
+          <div class="label">Neto capacidad</div>
+          <div class="value accent">{{ t.vm.total_neto }}</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Realizadas</div>
+          <div class="value">{{ t.vm.resumen.atenciones_realizadas|default:"—" }}</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Cumplimiento</div>
+          <div class="value">
+            {% if t.vm.cumplimiento_pct %}{{ t.vm.cumplimiento_pct|floatformat:1 }}{% else %}—{% endif %}
+            {% if t.vm.cumplimiento_pct %}<span style="font-size:1rem;color:var(--muted)">%</span>{% endif %}
+          </div>
+        </div>
+      </div>
+      <p style="color:var(--muted); font-size:.82rem; margin:.9rem 0 0;">
+        Período: {{ t.vm.mes }}/{{ t.vm.anio }}
+      </p>
+      <a class="btn primary" style="margin-top:.9rem;"
+         href="{% url 'capacidad:mensual' %}?unidad={{ t.unidad.id }}&anio={{ t.vm.anio }}&mes={{ t.vm.mes }}">
+        Ver vista mensual →
+      </a>
+    {% else %}
+      <p style="color:var(--muted); margin-top:1rem;">Sin parámetros mensuales cargados.</p>
+    {% endif %}
+  </div></div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

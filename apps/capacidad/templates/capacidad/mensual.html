@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}Vista mensual · Capacidad Instalada{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Vista mensual de capacidad</h1>
+<p class="page-sub">Equivalente a la hoja de mes del Excel: salas por sede, subtotales y total general.</p>
+
+{% if sin_datos %}
+  <div class="card"><div class="card-body">
+    No hay unidades de negocio. Carga datos con <code>python manage.py seed_demo</code>.
+  </div></div>
+{% else %}
+
+<form method="get" class="toolbar" role="search">
+  <div class="field">
+    <label for="unidad">Unidad de negocio</label>
+    <select name="unidad" id="unidad">
+      {% for u in unidades %}
+        <option value="{{ u.id }}" {% if u.id == unidad_sel.id %}selected{% endif %}>{{ u.nombre }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="field">
+    <label for="anio">Año</label>
+    <input type="number" name="anio" id="anio" value="{{ anio_sel }}" min="2000" max="2100" style="width:6rem;">
+  </div>
+  <div class="field">
+    <label for="mes">Mes</label>
+    <select name="mes" id="mes">
+      {% for num, nombre in meses %}
+        <option value="{{ num }}" {% if num == mes_sel %}selected{% endif %}>{{ nombre }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <button class="btn primary" type="submit">Ver</button>
+</form>
+
+{% if vm.parametro %}
+  <div class="grid kpis" style="margin-bottom:1rem;">
+    <div class="card kpi-card accent-indigo"><div class="card-body kpi">
+      <div class="label">Total capacidad instalada</div><div class="value">{{ vm.total_citas_mes }}</div>
+    </div></div>
+    <div class="card kpi-card accent-brand"><div class="card-body kpi">
+      <div class="label">Neto ajustado (meta)</div><div class="value accent">{{ vm.total_neto }}</div>
+    </div></div>
+    <div class="card kpi-card accent-teal"><div class="card-body kpi">
+      <div class="label">Atenciones realizadas</div><div class="value">{{ vm.resumen.atenciones_realizadas|default:"—" }}</div>
+    </div></div>
+    <div class="card kpi-card accent-{{ vm.cumplimiento_estado|default:'muted' }}"><div class="card-body kpi">
+      <div class="label">Cumplimiento</div>
+      <div class="value value-{{ vm.cumplimiento_estado }}">
+        {% if vm.cumplimiento_pct %}{{ vm.cumplimiento_pct|floatformat:1 }} %{% else %}—{% endif %}
+      </div>
+    </div></div>
+  </div>
+
+  <div class="info-strip">
+    <span class="badge {% if vm.parametro.modo == 'CALENDARIO' %}ok{% else %}muted{% endif %}">
+      {{ vm.parametro.get_modo_display }}
+    </span>
+    <span class="info-item"><strong>{{ vm.dias_lav_reales }}</strong> días L–V</span>
+    <span class="info-item"><strong>{{ vm.sabados_reales }}</strong> sábados</span>
+    <span class="info-item"><strong>{{ vm.festivos_count }}</strong> festivo{{ vm.festivos_count|pluralize }}</span>
+    <span class="info-note">
+      {% if vm.parametro.modo == 'CALENDARIO' %}
+        días reales del calendario de {{ vm.mes }}/{{ vm.anio }} (festivos descontados)
+      {% else %}
+        el mes tiene estos días reales, pero en modo fijo se usan {{ vm.parametro.dias_lav }}×{{ vm.parametro.semanas_mes }} L–V y {{ vm.parametro.sabados_semana }}×{{ vm.parametro.semanas_mes }} sábados
+      {% endif %}
+    </span>
+  </div>
+{% endif %}
+
+{% if vm.parametro %}
+<div class="legend-bar">
+  <span class="tip" tabindex="0" role="button" aria-label="Explicación de los métodos de cálculo">
+    <span class="tip-icon" aria-hidden="true">i</span>
+    Métodos de cálculo
+    <div class="tip-pop" role="tooltip">
+      <div class="tip-item">
+        <span class="badge brand">Por horas ÷ tiempo estándar</span>
+        <p>Citas/día = redondear(horas ÷ tiempo estándar). Cuenta los días L–V y sábados
+           <strong>reales</strong> del mes (descuenta festivos). Ej.: Cabecera, Oscilo, Pletismógrafos.</p>
+      </div>
+      <div class="tip-item">
+        <span class="badge brand">Por patrón de días de la semana</span>
+        <p>Las citas/día se definen por día (ej. “Lun-Mié-Vie: 16”). Cuenta las
+           <strong>ocurrencias reales</strong> de esos días en el mes. Ej.: sedes municipales.</p>
+      </div>
+      <div class="tip-item">
+        <span class="badge brand">Personalizado (overrides)</span>
+        <p>Fórmula a mano tipo “receta semanal × semanas” con overrides y términos.
+           <strong>No lo afectan</strong> los días ni festivos del mes. Ej.: Cardiopulmonar.</p>
+      </div>
+    </div>
+  </span>
+  <span class="legend-hint">pasa el cursor sobre cada método en la tabla para ver su detalle</span>
+</div>
+{% endif %}
+
+<div id="tabla-capacidad">
+  {% include "capacidad/partials/_tabla.html" %}
+</div>
+
+{% endif %}
+{% endblock %}

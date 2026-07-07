@@ -1,0 +1,30 @@
+<tr id="fila-{{ cap.id }}" style="background: var(--surface-2);">
+  <td><strong>{{ cap.sala.nombre }}</strong></td>
+  <td><span class="badge brand" title="{{ cap.sala.metodo_ayuda }}" tabindex="0">{{ cap.sala.get_metodo_calculo_display }}</span></td>
+  <td class="num">{{ form.horas_dia_lav }}</td>
+  <td class="num">{{ form.horas_dia_sabado }}</td>
+  <td class="num">{{ form.tiempo_estandar_horas }}</td>
+  <td class="num" colspan="3" style="color:var(--muted); font-size:.8rem;">Se recalcula al guardar</td>
+  <td class="num">{{ form.ajuste_sobreatencion }}</td>
+  <td class="num" colspan="2">{{ form.observaciones }}</td>
+  <td></td>
+  <td style="white-space:nowrap;">
+    <button class="btn primary" type="button"
+            hx-post="{% url 'capacidad:editar_capacidad' cap.id %}"
+            hx-include="#fila-{{ cap.id }} [name]"
+            hx-target="#tabla-capacidad"
+            hx-swap="innerHTML"
+            hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>Guardar</button>
+    <button class="btn" type="button"
+            hx-get="{% url 'capacidad:fila_capacidad' cap.id %}"
+            hx-target="#fila-{{ cap.id }}"
+            hx-swap="outerHTML">Cancelar</button>
+  </td>
+</tr>
+{% if form.errors %}
+<tr id="fila-{{ cap.id }}-err">
+  <td colspan="13" style="color:var(--danger); font-size:.82rem;">
+    {% for field, errs in form.errors.items %}{{ field }}: {{ errs|join:", " }} {% endfor %}
+  </td>
+</tr>
+{% endif %}

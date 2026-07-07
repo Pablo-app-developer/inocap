@@ -1,0 +1,57 @@
+{% if not vm.parametro %}
+  <div class="card"><div class="card-body">
+    No hay parámetros ni capacidades cargadas para {{ vm.unidad.nombre }} en {{ vm.mes }}/{{ vm.anio }}.
+    Créalos desde <a href="/admin/">Administración</a>.
+  </div></div>
+{% else %}
+<div class="table-wrap">
+  <table class="data">
+    <thead>
+      <tr>
+        <th>Sala</th>
+        <th>Método</th>
+        <th class="num">Horas L–V</th>
+        <th class="num">Horas Sáb</th>
+        <th class="num">T. Est.</th>
+        <th class="num">Citas/día L–V</th>
+        <th class="num">Citas/día Sáb</th>
+        <th class="num" title="Capacidad instalada bruta del mes (antes de novedades)">Total capacidad instalada</th>
+        <th class="num">Ajuste</th>
+        <th class="num">Nov. −</th>
+        <th class="num">Nov. +</th>
+        <th class="num" title="Capacidad neta ajustada = capacidad instalada + ajuste − novedades a descontar + novedades a sumar">Neto ajustado</th>
+        <th>Acción</th>
+      </tr>
+    </thead>
+    {% for g in vm.grupos %}
+    <tbody>
+      <tr class="sede-head">
+        <td colspan="13">
+          {{ g.sede.nombre }}
+          {% if g.sede.es_municipal %}<span class="badge muted">municipal</span>{% endif %}
+        </td>
+      </tr>
+      {% for cap in g.filas %}
+        {% include "capacidad/partials/_fila.html" %}
+      {% endfor %}
+      <tr class="total">
+        <td colspan="7">Subtotal {{ g.sede.nombre }}</td>
+        <td class="num">{{ g.subtotal_citas_mes }}</td>
+        <td class="num" colspan="3"></td>
+        <td class="num">{{ g.subtotal_neto }}</td>
+        <td></td>
+      </tr>
+    </tbody>
+    {% endfor %}
+    <tbody>
+      <tr class="grand-total">
+        <td colspan="7">TOTAL GENERAL</td>
+        <td class="num">{{ vm.total_citas_mes }}</td>
+        <td class="num" colspan="3"></td>
+        <td class="num">{{ vm.total_neto }}</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+{% endif %}
