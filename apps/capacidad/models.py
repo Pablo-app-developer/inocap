@@ -187,7 +187,7 @@ class TipoNovedad(models.TextChoices):
     REUNION = "REUNION", "Reunión autorizada por gerencia"
     MANTENIMIENTO = "MANTENIMIENTO", "Mantenimiento autorizado"
     FESTIVO = "FESTIVO", "Festivo"
-    TEST_EJERCICIO = "TEST_EJERCICIO", "Test de ejercicio"
+    TEST_EJERCICIO = "TEST_EJERCICIO", "Prueba/procedimiento que desplaza consultas (ej. test de ejercicio, electrolitos)"
     CIERRE_SALA = "CIERRE_SALA", "Cierre de sala"
     SESION_EDUCATIVA = "SESION_EDUCATIVA", "Sesión educativa"
     APOYO_SERVICIO = "APOYO_SERVICIO", "Apoyo a otro servicio"
