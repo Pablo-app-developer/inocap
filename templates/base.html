@@ -56,5 +56,25 @@
       try { localStorage.setItem('theme', next); } catch (e) {}
     });
   </script>
+
+  <script>
+    // Al reemplazar bloques con HTMX (guardar/editar/eliminar), el contenido
+    // puede volverse más corto y el navegador recorta el scroll al nuevo
+    // final de la página. Se guarda la posición antes del swap y se restaura
+    // después de asentar el nuevo contenido, para no perder el lugar donde
+    // se estaba trabajando (p. ej. editando novedades una por una).
+    (function () {
+      var scrollY = null;
+      document.body.addEventListener('htmx:beforeSwap', function () {
+        scrollY = window.scrollY;
+      });
+      document.body.addEventListener('htmx:afterSettle', function () {
+        if (scrollY !== null) {
+          window.scrollTo(0, scrollY);
+          scrollY = null;
+        }
+      });
+    })();
+  </script>
 </body>
 </html>
