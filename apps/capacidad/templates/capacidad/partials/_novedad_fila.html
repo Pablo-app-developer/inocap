@@ -1,24 +1,15 @@
-<li class="nov-item" id="novedad-{{ n.id }}">
-  <span class="nov-campo" title="{{ n.get_tipo_display }}">
-    <span class="nov-etiqueta">Tipo</span>{{ n.get_tipo_display }}
-  </span>
-  <span class="nov-campo">
-    <span class="nov-etiqueta">Signo</span>
+<tr id="novedad-{{ n.id }}">
+  <td>{{ n.get_tipo_display }}</td>
+  <td>
     <span class="badge {% if n.signo == 'DESCONTAR' %}muted{% else %}ok{% endif %}">
       {{ n.get_signo_display }}
     </span>
-  </span>
-  <span class="nov-campo">
-    <span class="nov-etiqueta">Citas</span>{{ n.citas_afectadas }}
-  </span>
-  <span class="nov-campo">
-    <span class="nov-etiqueta">Fecha</span>{{ n.fecha|default:"—" }}
-  </span>
-  <span class="nov-campo nov-campo-desc" title="{{ n.descripcion }}">
-    <span class="nov-etiqueta">Descripción</span>{{ n.descripcion|default:"—" }}
-  </span>
+  </td>
+  <td class="num">{{ n.citas_afectadas }}</td>
+  <td>{{ n.fecha|default:"—" }}</td>
+  <td class="nov-desc" title="{{ n.descripcion }}">{{ n.descripcion|default:"—" }}</td>
   {% if abierto %}
-  <span class="nov-acciones">
+  <td class="nov-acciones">
     <button class="btn" type="button"
             hx-get="{% url 'capacidad:editar_novedad' n.id %}"
             hx-target="#novedad-{{ n.id }}" hx-swap="outerHTML">Editar</button>
@@ -27,6 +18,6 @@
             hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
             hx-target="#modulo-novedades" hx-swap="innerHTML"
             hx-confirm="¿Eliminar esta novedad de {{ n.capacidad_sala.sala.nombre }}?">Eliminar</button>
-  </span>
+  </td>
   {% endif %}
-</li>
+</tr>
