@@ -7,7 +7,12 @@
 
 {% if sin_datos %}
   <div class="card"><div class="card-body">
-    No hay unidades de negocio. Carga datos con <code>python manage.py seed_demo</code>.
+    {% if user.is_superuser %}
+      No hay unidades de negocio. Carga datos con <code>python manage.py seed_demo</code>.
+    {% else %}
+      No tienes unidades de negocio asignadas. Contacta a un administrador para que
+      te habilite el acceso desde /admin/.
+    {% endif %}
   </div></div>
 {% else %}
 

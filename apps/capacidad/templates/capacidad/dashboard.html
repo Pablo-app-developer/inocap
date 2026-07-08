@@ -7,8 +7,13 @@
 
 {% if not tarjetas %}
   <div class="card"><div class="card-body">
-    No hay unidades de negocio. Carga datos con <code>python manage.py seed_demo</code>
-    o desde <a href="/admin/">Administración</a>.
+    {% if user.is_superuser %}
+      No hay unidades de negocio. Carga datos con <code>python manage.py seed_demo</code>
+      o desde <a href="/admin/">Administración</a>.
+    {% else %}
+      No tienes unidades de negocio asignadas. Contacta a un administrador para que
+      te habilite el acceso desde /admin/.
+    {% endif %}
   </div></div>
 {% else %}
 <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">

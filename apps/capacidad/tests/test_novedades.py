@@ -14,7 +14,7 @@ from apps.capacidad.models import (
     ParametroMensual,
 )
 from apps.capacidad.services import orm
-from apps.core.models import MetodoCalculo, Sala, Sede, UnidadNegocio
+from apps.core.models import MetodoCalculo, PerfilUsuario, Sala, Sede, UnidadNegocio
 
 
 @pytest.fixture
@@ -38,14 +38,22 @@ def escenario(db):
     return unidad, param, cap
 
 
-@pytest.fixture
-def staff(db):
-    return User.objects.create_user("jefe", password="x", is_staff=True)
+def _dar_acceso(user, unidad):
+    perfil = PerfilUsuario.objects.create(usuario=user)
+    perfil.unidades_negocio.add(unidad)
+    return user
 
 
 @pytest.fixture
-def usuario(db):
-    return User.objects.create_user("digitador", password="x", is_staff=False)
+def staff(db, escenario):
+    unidad, _, _ = escenario
+    return _dar_acceso(User.objects.create_user("jefe", password="x", is_staff=True), unidad)
+
+
+@pytest.fixture
+def usuario(db, escenario):
+    unidad, _, _ = escenario
+    return _dar_acceso(User.objects.create_user("digitador", password="x", is_staff=False), unidad)
 
 
 DATOS = {"tipo": "INCAPACIDAD", "signo": "DESCONTAR", "citas_afectadas": 5}

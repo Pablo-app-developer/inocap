@@ -8,6 +8,7 @@ La estructura refleja el archivo "TABLAS PARA CREAR PLATAFORMA WEB":
   calcula su capacidad (método de cálculo).
 """
 
+from django.conf import settings
 from django.db import models
 
 
@@ -111,3 +112,27 @@ class Sala(models.Model):
     @property
     def metodo_ayuda(self) -> str:
         return self.METODO_AYUDA.get(self.metodo_calculo, "")
+
+
+class PerfilUsuario(models.Model):
+    """Qué unidades de negocio puede ver un usuario (menú lateral + acceso).
+
+    Los superusuarios ven todas las unidades activas sin necesidad de perfil
+    (ver `apps.core.accesos`). Este modelo solo restringe a usuarios normales
+    (p. ej. la persona que digita novedades de Laboratorio Pulmonar).
+    """
+
+    usuario = models.OneToOneField(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="perfil"
+    )
+    unidades_negocio = models.ManyToManyField(
+        UnidadNegocio, blank=True, related_name="perfiles_acceso",
+        verbose_name="Unidades de negocio con acceso",
+    )
+
+    class Meta:
+        verbose_name = "Perfil de usuario"
+        verbose_name_plural = "Perfiles de usuario"
+
+    def __str__(self) -> str:
+        return f"Perfil de {self.usuario}"

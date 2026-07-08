@@ -17,6 +17,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_POST
 
+from apps.core import accesos
 from apps.core.models import MetodoCalculo, UnidadNegocio
 
 from . import selectors
@@ -32,7 +33,7 @@ def _tabla_context(unidad, anio, mes):
 
 @login_required
 def dashboard(request):
-    unidades = UnidadNegocio.objects.filter(activo=True)
+    unidades = accesos.unidades_accesibles(request.user)
     tarjetas = []
     for u in unidades:
         periodos = selectors.periodos_disponibles(u)
@@ -48,9 +49,11 @@ def dashboard(request):
 def _seleccion_periodo(request):
     """Resuelve (unidades, unidad, periodos, anio, mes) desde los filtros GET.
 
-    Devuelve None si no hay unidades de negocio activas.
+    `unidades` ya viene acotado a las unidades accesibles del usuario, así que
+    un ?unidad=<id> ajeno simplemente cae al primero accesible (sin fuga de datos).
+    Devuelve None si el usuario no tiene ninguna unidad accesible.
     """
-    unidades = list(UnidadNegocio.objects.filter(activo=True))
+    unidades = list(accesos.unidades_accesibles(request.user))
     if not unidades:
         return None
     unidad_id = request.GET.get("unidad")
@@ -99,6 +102,7 @@ def mensual(request):
 def crear_mes(request):
     """Crea un mes nuevo clonando la parametrización del último mes cargado."""
     unidad = get_object_or_404(UnidadNegocio, pk=request.POST.get("unidad"))
+    accesos.verificar_acceso(request.user, unidad)
     try:
         anio = int(request.POST.get("anio", ""))
         mes = int(request.POST.get("mes", ""))
@@ -130,8 +134,9 @@ def _tabla_actualizada(request, cap):
 @login_required
 def editar_capacidad(request, pk):
     cap = get_object_or_404(
-        CapacidadSala.objects.select_related("sala", "parametro"), pk=pk
+        CapacidadSala.objects.select_related("sala__unidad_negocio", "parametro"), pk=pk
     )
+    accesos.verificar_acceso(request.user, cap.sala.unidad_negocio)
 
     # POR_DIA_SEMANA se edita por "citas por semana"; el resto por horas.
     es_semanal = cap.sala.metodo_calculo == MetodoCalculo.POR_DIA_SEMANA
@@ -157,8 +162,9 @@ def editar_capacidad(request, pk):
 def cambiar_metodo(request, pk):
     """Cambia el método de cálculo de la sala (afecta todos sus meses) y recalcula."""
     cap = get_object_or_404(
-        CapacidadSala.objects.select_related("sala", "parametro"), pk=pk
+        CapacidadSala.objects.select_related("sala__unidad_negocio", "parametro"), pk=pk
     )
+    accesos.verificar_acceso(request.user, cap.sala.unidad_negocio)
     metodo = request.POST.get("metodo")
     if metodo in MetodoCalculo.values:
         cap.sala.metodo_calculo = metodo
@@ -169,8 +175,9 @@ def cambiar_metodo(request, pk):
 @login_required
 def fila_capacidad(request, pk):
     cap = get_object_or_404(
-        CapacidadSala.objects.select_related("sala", "parametro"), pk=pk
+        CapacidadSala.objects.select_related("sala__unidad_negocio", "parametro"), pk=pk
     )
+    accesos.verificar_acceso(request.user, cap.sala.unidad_negocio)
     return render(request, "capacidad/partials/_fila.html", {"cap": cap})
 
 
@@ -224,6 +231,7 @@ def agregar_novedad(request, cap_id):
         CapacidadSala.objects.select_related("sala", "parametro__unidad_negocio"),
         pk=cap_id,
     )
+    accesos.verificar_acceso(request.user, cap.parametro.unidad_negocio)
     if not cap.parametro.novedades_abiertas:
         return _modulo_novedades_actualizado(
             request, cap.parametro,
@@ -255,6 +263,7 @@ def eliminar_novedad(request, pk):
         pk=pk,
     )
     cap = novedad.capacidad_sala
+    accesos.verificar_acceso(request.user, cap.parametro.unidad_negocio)
     if not cap.parametro.novedades_abiertas:
         return _modulo_novedades_actualizado(
             request, cap.parametro,
@@ -275,6 +284,7 @@ def editar_novedad(request, pk):
         pk=pk,
     )
     cap = novedad.capacidad_sala
+    accesos.verificar_acceso(request.user, cap.parametro.unidad_negocio)
     abierto = cap.parametro.novedades_abiertas
 
     if request.method == "POST":
@@ -309,8 +319,9 @@ def editar_novedad(request, pk):
 def fila_novedad(request, pk):
     """Devuelve la fila de una novedad en modo lectura (botón Cancelar)."""
     novedad = get_object_or_404(
-        Novedad.objects.select_related("capacidad_sala__parametro"), pk=pk
+        Novedad.objects.select_related("capacidad_sala__parametro__unidad_negocio"), pk=pk
     )
+    accesos.verificar_acceso(request.user, novedad.capacidad_sala.parametro.unidad_negocio)
     abierto = novedad.capacidad_sala.parametro.novedades_abiertas
     return render(
         request, "capacidad/partials/_novedad_fila.html",
@@ -326,7 +337,11 @@ def toggle_novedades(request):
         messages.error(request, "Solo un administrador puede habilitar o cerrar el mes.")
         return redirect(reverse("capacidad:novedades"))
 
-    parametro = get_object_or_404(ParametroMensual, pk=request.POST.get("parametro"))
+    parametro = get_object_or_404(
+        ParametroMensual.objects.select_related("unidad_negocio"),
+        pk=request.POST.get("parametro"),
+    )
+    accesos.verificar_acceso(request.user, parametro.unidad_negocio)
     parametro.novedades_abiertas = not parametro.novedades_abiertas
     parametro.save(update_fields=["novedades_abiertas"])
     estado = "habilitado" if parametro.novedades_abiertas else "cerrado"

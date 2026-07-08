@@ -1,0 +1,14 @@
+<nav class="sidebar" aria-label="Unidades de negocio">
+  <div class="sidebar-titulo">Unidades de negocio</div>
+  {% for u in unidades_sidebar %}
+    <div class="sidebar-unidad">
+      <span class="sidebar-unidad-nombre">{{ u.nombre }}</span>
+      <a class="sidebar-link {% if seccion == 'mensual' and unidad_sel.id == u.id %}active{% endif %}"
+         href="{% url 'capacidad:mensual' %}?unidad={{ u.id }}">Capacidad instalada mensual</a>
+      <a class="sidebar-link {% if seccion == 'novedades' and unidad_sel.id == u.id %}active{% endif %}"
+         href="{% url 'capacidad:novedades' %}?unidad={{ u.id }}">Novedades</a>
+    </div>
+  {% empty %}
+    <p class="sidebar-vacio">Sin unidades asignadas.</p>
+  {% endfor %}
+</nav>

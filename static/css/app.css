@@ -104,7 +104,45 @@ a:hover { text-decoration: underline; }
 }
 .navbar .spacer { flex: 1; }
 
-.container { width: 100%; max-width: 100%; margin: 0; padding: 1.5rem 2rem; }
+/* App shell: sidebar de unidades de negocio + contenido */
+.app-shell { display: flex; align-items: flex-start; }
+
+.sidebar {
+  width: 250px; flex-shrink: 0;
+  padding: 1.1rem 1rem; border-right: 1px solid var(--border);
+  background: var(--surface); min-height: calc(100vh - 65px);
+}
+.sidebar-titulo {
+  font-size: .74rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: .06em; color: var(--muted); margin-bottom: .8rem;
+}
+.sidebar-unidad { margin-bottom: 1.2rem; }
+.sidebar-unidad-nombre {
+  display: block; font-weight: 700; font-size: .9rem; color: var(--text);
+  margin-bottom: .3rem;
+}
+.sidebar-link {
+  display: block; padding: .35rem .5rem; margin-left: -.5rem;
+  border-radius: var(--radius-sm); font-size: .84rem; color: var(--muted);
+  transition: background var(--transition), color var(--transition);
+}
+.sidebar-link:hover { background: var(--surface-2); color: var(--text); text-decoration: none; }
+.sidebar-link.active {
+  background: color-mix(in srgb, var(--brand) 14%, var(--surface));
+  color: var(--brand-strong); font-weight: 700;
+}
+.sidebar-vacio { color: var(--muted); font-size: .85rem; }
+
+.container { flex: 1; min-width: 0; width: 100%; max-width: 100%; margin: 0; padding: 1.5rem 2rem; }
+
+@media (max-width: 860px) {
+  .app-shell { flex-direction: column; }
+  .sidebar {
+    width: 100%; min-height: 0; border-right: none; border-bottom: 1px solid var(--border);
+    display: flex; flex-wrap: wrap; gap: 0 1.5rem; align-items: baseline;
+  }
+  .sidebar-titulo { width: 100%; }
+}
 
 .page-title { font-size: 1.6rem; font-weight: 700; margin: 0 0 .25rem; }
 .page-sub { color: var(--muted); margin: 0 0 1.25rem; }
