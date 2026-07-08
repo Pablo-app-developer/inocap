@@ -34,21 +34,11 @@
       </div>
 
       {% if cap.novedades.all %}
-        <div class="table-wrap nov-tabla-wrap">
-          <table class="data nov-tabla">
-            <thead>
-              <tr>
-                <th>Tipo</th><th>Signo</th><th class="num">Citas</th>
-                <th>Fecha</th><th>Descripción</th>{% if abierto %}<th>Acción</th>{% endif %}
-              </tr>
-            </thead>
-            <tbody>
-              {% for n in cap.novedades.all %}
-                {% include "capacidad/partials/_novedad_fila.html" %}
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
+        <ul class="nov-lista">
+          {% for n in cap.novedades.all %}
+            {% include "capacidad/partials/_novedad_fila.html" %}
+          {% endfor %}
+        </ul>
       {% else %}
         <p class="nov-vacio">Sin novedades registradas este mes.</p>
       {% endif %}
