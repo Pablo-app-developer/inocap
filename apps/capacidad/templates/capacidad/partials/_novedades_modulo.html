@@ -9,11 +9,14 @@
   <span class="info-item">Total capacidad ajustada <strong>{{ vm.total_neto }}</strong></span>
 </div>
 
-{% for g in vm.grupos %}
-  <h2 class="nov-sede">
+{% for seccion in vm.secciones %}
+  <h2 class="nov-seccion">{{ seccion.titulo }}</h2>
+
+  {% for g in seccion.grupos %}
+  <h3 class="nov-sede">
     {{ g.sede.nombre }}
     {% if g.sede.es_municipal %}<span class="badge muted">municipal</span>{% endif %}
-  </h2>
+  </h3>
 
   {% for cap in g.filas %}
   <div class="card nov-card">
@@ -81,5 +84,6 @@
       {% endif %}
     </div>
   </div>
+  {% endfor %}
   {% endfor %}
 {% endfor %}

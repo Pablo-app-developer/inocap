@@ -14,9 +14,10 @@ class UnidadNegocioAdmin(admin.ModelAdmin):
 
 @admin.register(Sede)
 class SedeAdmin(admin.ModelAdmin):
-    list_display = ("nombre", "codigo", "es_municipal", "activo")
+    list_display = ("nombre", "codigo", "es_municipal", "orden", "activo")
     prepopulated_fields = {"codigo": ("nombre",)}
     list_filter = ("es_municipal", "activo")
+    list_editable = ("orden", "activo")
 
 
 @admin.register(Sala)

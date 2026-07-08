@@ -48,11 +48,12 @@ class Sede(models.Model):
         help_text="Sedes municipales (Barranca, San Gil, Málaga) usan parametrización propia.",
     )
     activo = models.BooleanField(default=True)
+    orden = models.PositiveIntegerField(default=0)
 
     class Meta:
         verbose_name = "Sede"
         verbose_name_plural = "Sedes"
-        ordering = ["nombre"]
+        ordering = ["orden", "nombre"]
 
     def __str__(self) -> str:
         return self.nombre

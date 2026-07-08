@@ -115,7 +115,7 @@ def vista_mensual(unidad: UnidadNegocio, anio: int, mes: int) -> VistaMensual:
     conteo = conteo_mes(anio, mes)
     festivos_count = len(festivos_del_mes(anio, mes))
 
-    grupos_ordenados = sorted(grupos.values(), key=lambda g: g.sede.nombre)
+    grupos_ordenados = sorted(grupos.values(), key=lambda g: (g.sede.orden, g.sede.nombre))
     secciones = []
     for titulo, es_municipal in [("Sedes principales", False), ("Sedes municipales", True)]:
         del_bloque = [g for g in grupos_ordenados if g.sede.es_municipal == es_municipal]

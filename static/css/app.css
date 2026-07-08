@@ -221,9 +221,15 @@ a:hover { text-decoration: underline; }
 .estado-mes.cerrado { border-left: 3px solid var(--muted); }
 .estado-mes-texto { color: var(--muted); }
 
+.nov-seccion {
+  font-size: .78rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: .06em; color: var(--text); margin: 1.8rem 0 .3rem;
+  padding-top: 1rem; border-top: 2px solid var(--border);
+}
+.nov-seccion:first-child { margin-top: 0; padding-top: 0; border-top: none; }
 .nov-sede {
   font-size: .9rem; font-weight: 800; text-transform: uppercase;
-  letter-spacing: .05em; color: var(--brand-strong); margin: 1.4rem 0 .6rem;
+  letter-spacing: .05em; color: var(--brand-strong); margin: 1rem 0 .6rem;
 }
 .nov-card { margin-bottom: .9rem; }
 .nov-head { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; margin-bottom: .6rem; }
