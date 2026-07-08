@@ -4,54 +4,71 @@
     Créalos desde <a href="/admin/">Administración</a>.
   </div></div>
 {% else %}
-<div class="table-wrap">
-  <table class="data">
-    <thead>
-      <tr>
-        <th>Sala</th>
-        <th>Método</th>
-        <th class="num">Horas L–V</th>
-        <th class="num">Horas Sáb</th>
-        <th class="num">T. Est.</th>
-        <th class="num">Citas/día L–V</th>
-        <th class="num">Citas/día Sáb</th>
-        <th class="num" title="Capacidad instalada bruta del mes (antes de novedades)">Total capacidad instalada</th>
-        <th class="num">Ajuste</th>
-        <th class="num">Nov. −</th>
-        <th class="num">Nov. +</th>
-        <th class="num" title="Capacidad neta ajustada = capacidad instalada + ajuste − novedades a descontar + novedades a sumar">Neto ajustado</th>
-        <th>Acción</th>
-      </tr>
-    </thead>
-    {% for g in vm.grupos %}
-    <tbody>
-      <tr class="sede-head">
-        <td colspan="13">
-          {{ g.sede.nombre }}
-          {% if g.sede.es_municipal %}<span class="badge muted">municipal</span>{% endif %}
-        </td>
-      </tr>
-      {% for cap in g.filas %}
-        {% include "capacidad/partials/_fila.html" %}
+{% for seccion in vm.secciones %}
+<section class="seccion-sedes {% if seccion.grupos.0.sede.es_municipal %}es-municipal{% endif %}">
+  <div class="seccion-titulo">
+    <h2>{{ seccion.titulo }}</h2>
+    <span class="seccion-resumen">
+      <span class="info-item"><strong>{{ seccion.subtotal_citas_mes }}</strong> capacidad</span>
+      <span class="info-item"><strong>{{ seccion.subtotal_neto }}</strong> capacidad ajustada</span>
+    </span>
+  </div>
+  <div class="table-wrap">
+    <table class="data">
+      <thead>
+        <tr>
+          <th>Sala</th>
+          <th>Método</th>
+          <th class="num">Horas L–V</th>
+          <th class="num">Horas Sáb</th>
+          <th class="num">T. Est.</th>
+          <th class="num">Citas/día L–V</th>
+          <th class="num">Citas/día Sáb</th>
+          <th class="num col-hl" title="Capacidad instalada bruta del mes (antes de novedades)">Total capacidad instalada</th>
+          <th class="num">Ajuste</th>
+          <th class="num">Nov. −</th>
+          <th class="num">Nov. +</th>
+          <th class="num col-hl" title="Total capacidad ajustada = capacidad instalada + ajuste − novedades a descontar + novedades a sumar">Total capacidad ajustada</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      {% for g in seccion.grupos %}
+      <tbody>
+        <tr class="sede-head">
+          <td colspan="13">
+            {{ g.sede.nombre }}
+            {% if g.sede.es_municipal %}<span class="badge muted">municipal</span>{% endif %}
+          </td>
+        </tr>
+        {% for cap in g.filas %}
+          {% include "capacidad/partials/_fila.html" %}
+        {% endfor %}
+        <tr class="total">
+          <td colspan="7">Subtotal {{ g.sede.nombre }}</td>
+          <td class="num col-hl">{{ g.subtotal_citas_mes }}</td>
+          <td class="num" colspan="3"></td>
+          <td class="num col-hl">{{ g.subtotal_neto }}</td>
+          <td></td>
+        </tr>
+      </tbody>
       {% endfor %}
-      <tr class="total">
-        <td colspan="7">Subtotal {{ g.sede.nombre }}</td>
-        <td class="num">{{ g.subtotal_citas_mes }}</td>
-        <td class="num" colspan="3"></td>
-        <td class="num">{{ g.subtotal_neto }}</td>
-        <td></td>
-      </tr>
-    </tbody>
-    {% endfor %}
-    <tbody>
-      <tr class="grand-total">
-        <td colspan="7">TOTAL GENERAL</td>
-        <td class="num">{{ vm.total_citas_mes }}</td>
-        <td class="num" colspan="3"></td>
-        <td class="num">{{ vm.total_neto }}</td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
+      <tbody>
+        <tr class="total seccion-total">
+          <td colspan="7">Subtotal {{ seccion.titulo|lower }}</td>
+          <td class="num col-hl">{{ seccion.subtotal_citas_mes }}</td>
+          <td class="num" colspan="3"></td>
+          <td class="num col-hl">{{ seccion.subtotal_neto }}</td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endfor %}
+
+<div class="gran-total-strip">
+  <span class="gt-label">TOTAL GENERAL</span>
+  <span class="gt-item"><strong>{{ vm.total_citas_mes }}</strong> capacidad instalada</span>
+  <span class="gt-item"><strong>{{ vm.total_neto }}</strong> capacidad ajustada</span>
 </div>
 {% endif %}

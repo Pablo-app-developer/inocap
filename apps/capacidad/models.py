@@ -62,6 +62,12 @@ class ParametroMensual(models.Model):
         "Tiempo por cita (min)", max_digits=6, decimal_places=2, default=30
     )
 
+    novedades_abiertas = models.BooleanField(
+        "Ingreso de novedades habilitado", default=False,
+        help_text="Si está activo, los usuarios pueden registrar novedades de "
+                  "este mes en el módulo de novedades.",
+    )
+
     class Meta:
         verbose_name = "Parámetro mensual"
         verbose_name_plural = "Parámetros mensuales"
@@ -116,6 +122,11 @@ class CapacidadSala(models.Model):
     citas_vie = models.PositiveIntegerField("Citas viernes", default=0)
     citas_sab = models.PositiveIntegerField("Citas sábado", default=0)
     citas_dom = models.PositiveIntegerField("Citas domingo", default=0)
+    sabados_alternos = models.BooleanField(
+        "Sábado de por medio", default=False,
+        help_text="Atiende un sábado sí y uno no (quincenal): cuenta la mitad "
+                  "de los sábados del mes, redondeando hacia abajo.",
+    )
 
     observaciones = models.TextField(blank=True)
     horario_laboral = models.TextField(blank=True)
@@ -168,9 +179,14 @@ class Signo(models.TextChoices):
 
 
 class TipoNovedad(models.TextChoices):
-    FESTIVO = "FESTIVO", "Festivo"
     INCAPACIDAD = "INCAPACIDAD", "Incapacidad"
-    CURSO = "CURSO", "Curso / capacitación"
+    PERMISO = "PERMISO", "Permiso"
+    PERMISO_VOTACION = "PERMISO_VOTACION", "Permiso por votación"
+    VACACIONES = "VACACIONES", "Vacaciones"
+    CURSO = "CURSO", "Capacitación aprobada por gerencia"
+    REUNION = "REUNION", "Reunión autorizada por gerencia"
+    MANTENIMIENTO = "MANTENIMIENTO", "Mantenimiento autorizado"
+    FESTIVO = "FESTIVO", "Festivo"
     TEST_EJERCICIO = "TEST_EJERCICIO", "Test de ejercicio"
     CIERRE_SALA = "CIERRE_SALA", "Cierre de sala"
     SESION_EDUCATIVA = "SESION_EDUCATIVA", "Sesión educativa"

@@ -25,7 +25,8 @@
     </a>
     <nav aria-label="Principal">
       <a href="{% url 'capacidad:dashboard' %}" class="{% if seccion == 'dashboard' %}active{% endif %}">Dashboard</a>
-      <a href="{% url 'capacidad:mensual' %}" class="{% if seccion == 'mensual' %}active{% endif %}">Vista mensual</a>
+      <a href="{% url 'capacidad:mensual' %}" class="{% if seccion == 'mensual' %}active{% endif %}">Capacidad instalada mensual</a>
+      <a href="{% url 'capacidad:novedades' %}" class="{% if seccion == 'novedades' %}active{% endif %}">Novedades</a>
       <a href="/admin/">Administración</a>
     </nav>
     <span class="spacer"></span>
@@ -35,6 +36,11 @@
   </header>
 
   <main class="container">
+    {% if messages %}
+      {% for m in messages %}
+        <div class="flash {{ m.tags }}" role="status">{{ m }}</div>
+      {% endfor %}
+    {% endif %}
     {% block content %}{% endblock %}
   </main>
 

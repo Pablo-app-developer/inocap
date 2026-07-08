@@ -4,12 +4,23 @@
     {% if cap.sala.especialidad %}<span class="badge muted">{{ cap.sala.especialidad }}</span>{% endif %}
     {% if cap.sala.metodo_calculo == 'POR_DIA_SEMANA' %}
       <span class="badge brand" tabindex="0"
-            title="Lun {{ cap.citas_lun }} · Mar {{ cap.citas_mar }} · Mié {{ cap.citas_mie }} · Jue {{ cap.citas_jue }} · Vie {{ cap.citas_vie }} · Sáb {{ cap.citas_sab }} · Dom {{ cap.citas_dom }}">
+            title="Lun {{ cap.citas_lun }} · Mar {{ cap.citas_mar }} · Mié {{ cap.citas_mie }} · Jue {{ cap.citas_jue }} · Vie {{ cap.citas_vie }} · Sáb {{ cap.citas_sab }}{% if cap.sabados_alternos %} (sábado de por medio){% endif %} · Dom {{ cap.citas_dom }}">
         {{ cap.citas_semana }} citas/sem
       </span>
     {% endif %}
   </td>
-  <td><span class="badge brand" title="{{ cap.sala.metodo_ayuda }}" tabindex="0">{{ cap.sala.get_metodo_calculo_display }}</span></td>
+  <td>
+    <select class="metodo-select" title="{{ cap.sala.metodo_ayuda }}"
+            aria-label="Método de cálculo de {{ cap.sala.nombre }}"
+            hx-post="{% url 'capacidad:cambiar_metodo' cap.id %}"
+            hx-target="#tabla-capacidad" hx-swap="innerHTML"
+            hx-trigger="change" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+            name="metodo">
+      <option value="POR_HORAS" {% if cap.sala.metodo_calculo == 'POR_HORAS' %}selected{% endif %}>Por horas</option>
+      <option value="POR_DIA_SEMANA" {% if cap.sala.metodo_calculo == 'POR_DIA_SEMANA' %}selected{% endif %}>Por día de la semana</option>
+      <option value="PERSONALIZADO" {% if cap.sala.metodo_calculo == 'PERSONALIZADO' %}selected{% endif %}>Personalizado</option>
+    </select>
+  </td>
   {% if cap.sala.metodo_calculo == 'POR_DIA_SEMANA' %}
     <td class="num" title="No aplica: se calcula por citas por día de la semana">—</td>
     <td class="num" title="No aplica: se calcula por citas por día de la semana">—</td>
@@ -23,11 +34,11 @@
     <td class="num">{{ cap.citas_dia_lav }}</td>
     <td class="num">{{ cap.citas_dia_sabado }}</td>
   {% endif %}
-  <td class="num">{{ cap.citas_mes }}</td>
+  <td class="num col-hl">{{ cap.citas_mes }}</td>
   <td class="num">{{ cap.ajuste_sobreatencion }}</td>
   <td class="num">{{ cap.total_descontar }}</td>
   <td class="num">{{ cap.total_sumar }}</td>
-  <td class="num"><strong>{{ cap.neto_capacidad_ajustada }}</strong></td>
+  <td class="num col-hl"><strong>{{ cap.neto_capacidad_ajustada }}</strong></td>
   <td>
     <button class="btn" type="button"
             hx-get="{% url 'capacidad:editar_capacidad' cap.id %}"

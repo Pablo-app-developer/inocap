@@ -1,6 +1,25 @@
 from django import forms
 
-from .models import CapacidadSala
+from .models import CapacidadSala, Novedad
+
+
+class NovedadForm(forms.ModelForm):
+    """Registro de una novedad del mes (módulo de novedades)."""
+
+    class Meta:
+        model = Novedad
+        fields = ["tipo", "signo", "citas_afectadas", "fecha", "descripcion"]
+        widgets = {
+            "citas_afectadas": forms.NumberInput(attrs={"min": "1", "step": "1"}),
+            "fecha": forms.DateInput(attrs={"type": "date"}),
+            "descripcion": forms.TextInput(attrs={"placeholder": "Descripción (opcional)"}),
+        }
+
+    def clean_citas_afectadas(self):
+        citas = self.cleaned_data["citas_afectadas"]
+        if citas < 1:
+            raise forms.ValidationError("Las citas afectadas deben ser al menos 1.")
+        return citas
 
 
 class CapacidadSalaForm(forms.ModelForm):
@@ -37,7 +56,7 @@ class CapacidadSemanalForm(forms.ModelForm):
         fields = [
             "citas_lun", "citas_mar", "citas_mie", "citas_jue",
             "citas_vie", "citas_sab", "citas_dom",
-            "ajuste_sobreatencion", "observaciones",
+            "sabados_alternos", "ajuste_sobreatencion", "observaciones",
         ]
         _dia = forms.NumberInput(attrs={"step": "1", "min": "0", "style": "width:4.5rem"})
         widgets = {

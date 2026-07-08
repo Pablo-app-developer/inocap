@@ -212,3 +212,46 @@ def test_total_neto_unidad(unidad, sede):
         orm.recalcular(cap)
     total = orm.total_neto_unidad(unidad, 2026, 1)
     assert total == 1008  # 504 × 2
+
+
+@pytest.mark.django_db
+def test_sabados_alternos_legacy_cuenta_mitad(unidad):
+    """Malaga: 7 citas un sabado de por medio. LEGACY: 4 sabados -> cuenta 2."""
+    sede_m = Sede.objects.create(nombre="Malaga", codigo="malaga", es_municipal=True)
+    param = _param(unidad)  # EXCEL_LEGACY, semanas_mes=4
+    sala = Sala.objects.create(
+        unidad_negocio=unidad, sede=sede_m, nombre="Malaga",
+        metodo_calculo=MetodoCalculo.POR_DIA_SEMANA, atiende_sabados=True,
+    )
+    cap = CapacidadSala.objects.create(
+        sala=sala, parametro=param,
+        citas_lun=16, citas_mar=16, citas_mie=16, citas_jue=16, citas_vie=15,
+        citas_sab=7, sabados_alternos=True,
+    )
+    r = orm.recalcular(cap)
+    # (16+16+16+16+15) x 4 + 7 x (4 // 2) = 316 + 14 = 330
+    assert r.citas_mes == 330
+
+
+@pytest.mark.django_db
+def test_sabados_alternos_calendario_mitad_piso(unidad):
+    """CALENDARIO enero 2026: 5 sabados reales -> alternos cuenta 5 // 2 = 2."""
+    from datetime import date
+
+    Festivo.objects.create(fecha=date(2026, 1, 1), nombre="Anio Nuevo")
+    Festivo.objects.create(fecha=date(2026, 1, 12), nombre="Reyes")
+    sede_m = Sede.objects.create(nombre="Malaga", codigo="malaga", es_municipal=True)
+    param = _param(unidad, modo=ModoCalculo.CALENDARIO)
+    sala = Sala.objects.create(
+        unidad_negocio=unidad, sede=sede_m, nombre="Malaga",
+        metodo_calculo=MetodoCalculo.POR_DIA_SEMANA, atiende_sabados=True,
+    )
+    cap = CapacidadSala.objects.create(
+        sala=sala, parametro=param,
+        citas_lun=16, citas_mar=16, citas_mie=16, citas_jue=16, citas_vie=15,
+        citas_sab=7, sabados_alternos=True,
+    )
+    r = orm.recalcular(cap)
+    # Lun3x16 + Mar4x16 + Mie4x16 + Jue4x16 + Vie5x15 + Sab(5//2=2)x7
+    # = 48 + 64 + 64 + 64 + 75 + 14 = 329
+    assert r.citas_mes == 329

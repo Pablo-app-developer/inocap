@@ -50,12 +50,12 @@ SALAS_PRINCIPALES = [
 ]
 
 # Sedes municipales (método POR_DIA_SEMANA).
-# patrones: (descripcion, dias, citas_por_dia, es_sabado, dias_semana_csv)
-# Citas por día de la semana: (lun, mar, mié, jue, vie, sáb, dom)
+# (nombre, sede, novedades, (lun, mar, mié, jue, vie, sáb, dom), sabados_alternos)
+# Málaga atiende 7 citas un sábado de por medio (quincenal).
 SALAS_MUNICIPALES = [
-    ("Barrancabermeja", "Barranca", [8, 17], (16, 8, 16, 17, 16, 0, 0)),
-    ("San Gil", "San Gil", [2], (17, 16, 17, 16, 17, 0, 0)),
-    ("Málaga", "Málaga", [6, 15], (16, 16, 16, 16, 15, 7, 0)),
+    ("Barrancabermeja", "Barranca", [8, 17], (16, 8, 16, 17, 16, 0, 0), False),
+    ("San Gil", "San Gil", [2], (17, 16, 17, 16, 17, 0, 0), False),
+    ("Málaga", "Málaga", [6, 15], (16, 16, 16, 16, 15, 7, 0), True),
 ]
 
 
@@ -137,7 +137,7 @@ class Command(BaseCommand):
             orm.recalcular(cap)
 
         # --- Salas municipales (citas por día de la semana) ---
-        for nombre, sede_nombre, novs, dias_citas in SALAS_MUNICIPALES:
+        for nombre, sede_nombre, novs, dias_citas, sab_alternos in SALAS_MUNICIPALES:
             lun, mar, mie, jue, vie, sab, dom = dias_citas
             sala, _ = Sala.objects.update_or_create(
                 unidad_negocio=unidad, sede=sede(sede_nombre, municipal=True),
@@ -153,6 +153,7 @@ class Command(BaseCommand):
                     tiempo_estandar_horas=TE,
                     citas_lun=lun, citas_mar=mar, citas_mie=mie, citas_jue=jue,
                     citas_vie=vie, citas_sab=sab, citas_dom=dom,
+                    sabados_alternos=sab_alternos,
                 ),
             )
             cap.novedades.all().delete()

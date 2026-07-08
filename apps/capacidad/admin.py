@@ -22,8 +22,12 @@ class TerminoAdicionalInline(admin.TabularInline):
 
 @admin.register(ParametroMensual)
 class ParametroMensualAdmin(admin.ModelAdmin):
-    list_display = ("unidad_negocio", "anio", "mes", "modo", "dias_lav", "sabados_semana", "semanas_mes")
-    list_filter = ("unidad_negocio", "anio", "modo")
+    list_display = (
+        "unidad_negocio", "anio", "mes", "modo",
+        "dias_lav", "sabados_semana", "semanas_mes", "novedades_abiertas",
+    )
+    list_filter = ("unidad_negocio", "anio", "modo", "novedades_abiertas")
+    list_editable = ("novedades_abiertas",)
 
 
 @admin.register(CapacidadSala)

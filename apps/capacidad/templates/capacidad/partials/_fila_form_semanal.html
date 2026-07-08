@@ -24,6 +24,11 @@
       </div>
 
       <div style="display:flex; gap:1.2rem; align-items:end; flex-wrap:wrap; margin-top:.9rem;">
+        <label class="field" style="flex-direction:row; align-items:center; gap:.45rem;"
+               title="Atiende un sábado sí y uno no: se cuenta la mitad de los sábados del mes.">
+          {{ form.sabados_alternos }}
+          <span style="font-size:.78rem; color:var(--muted); font-weight:600;">Sábado de por medio (quincenal)</span>
+        </label>
         <label class="field">
           <span style="font-size:.78rem; color:var(--muted); font-weight:600;">Ajuste sobreatención</span>
           {{ form.ajuste_sobreatencion }}

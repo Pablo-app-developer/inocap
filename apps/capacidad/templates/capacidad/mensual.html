@@ -1,8 +1,8 @@
 {% extends "base.html" %}
-{% block title %}Vista mensual · Capacidad Instalada{% endblock %}
+{% block title %}Capacidad instalada mensual · INO{% endblock %}
 
 {% block content %}
-<h1 class="page-title">Vista mensual de capacidad</h1>
+<h1 class="page-title">Capacidad instalada mensual</h1>
 <p class="page-sub">Equivalente a la hoja de mes del Excel: salas por sede, subtotales y total general.</p>
 
 {% if sin_datos %}
@@ -35,13 +35,45 @@
   <button class="btn primary" type="submit">Ver</button>
 </form>
 
+<div class="card crear-mes-card">
+  <div class="card-body">
+    <h3>Crear mes</h3>
+    <p class="crear-mes-desc">
+      {% if origen_mes %}
+        Crea un mes nuevo copiando la parametrización de
+        <strong>{{ origen_mes.get_mes_display }} {{ origen_mes.anio }}</strong>
+        (sin novedades ni ajustes) y recalcula con el calendario del mes.
+      {% else %}
+        Crea el mes con las salas activas en cero.
+      {% endif %}
+    </p>
+    <form method="post" action="{% url 'capacidad:crear_mes' %}" class="toolbar" style="margin-bottom:0;">
+      {% csrf_token %}
+      <input type="hidden" name="unidad" value="{{ unidad_sel.id }}">
+      <div class="field">
+        <label for="crear-anio">Año</label>
+        <input type="number" name="anio" id="crear-anio" value="{{ sig_anio }}" min="2000" max="2100" style="width:6rem;">
+      </div>
+      <div class="field">
+        <label for="crear-mes">Mes</label>
+        <select name="mes" id="crear-mes">
+          {% for num, nombre in meses %}
+            <option value="{{ num }}" {% if num == sig_mes %}selected{% endif %}>{{ nombre }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button class="btn" type="submit">＋ Crear mes</button>
+    </form>
+  </div>
+</div>
+
 {% if vm.parametro %}
   <div class="grid kpis" style="margin-bottom:1rem;">
     <div class="card kpi-card accent-indigo"><div class="card-body kpi">
       <div class="label">Total capacidad instalada</div><div class="value">{{ vm.total_citas_mes }}</div>
     </div></div>
     <div class="card kpi-card accent-brand"><div class="card-body kpi">
-      <div class="label">Neto ajustado (meta)</div><div class="value accent">{{ vm.total_neto }}</div>
+      <div class="label">Total capacidad ajustada (meta)</div><div class="value accent">{{ vm.total_neto }}</div>
     </div></div>
     <div class="card kpi-card accent-teal"><div class="card-body kpi">
       <div class="label">Atenciones realizadas</div><div class="value">{{ vm.resumen.atenciones_realizadas|default:"—" }}</div>

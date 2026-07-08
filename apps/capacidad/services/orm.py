@@ -58,7 +58,8 @@ def _ocurrencias_dias(capacidad) -> tuple:
 
     CALENDARIO: ocurrencias reales del calendario descontando festivos.
     EXCEL_LEGACY: cada día L–V y sábado ocurre `semanas_mes` veces (fijo).
-    Si la sala no atiende sábados, el sábado se pone en 0.
+    Si la sala no atiende sábados, el sábado se pone en 0; si atiende un
+    sábado de por medio (`sabados_alternos`), cuenta la mitad (piso).
     """
     p = capacidad.parametro
     if p.modo == calculo.MODO_CALENDARIO:
@@ -69,6 +70,8 @@ def _ocurrencias_dias(capacidad) -> tuple:
 
     if not capacidad.sala.atiende_sabados:
         occ[5] = 0  # sábado
+    elif capacidad.sabados_alternos:
+        occ[5] //= 2  # un sábado de por medio (quincenal)
     return tuple(occ)
 
 

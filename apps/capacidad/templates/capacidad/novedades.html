@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Novedades del mes · INO{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Novedades del mes</h1>
+<p class="page-sub">
+  Incapacidades, permisos, mantenimientos… que descuentan (o suman) citas a la
+  capacidad instalada del mes. Se reflejan de inmediato en «Capacidad instalada mensual».
+</p>
+
+{% if sin_datos %}
+  <div class="card"><div class="card-body">
+    No hay unidades de negocio. Carga datos con <code>python manage.py seed_demo</code>.
+  </div></div>
+{% else %}
+
+<form method="get" class="toolbar" role="search">
+  <div class="field">
+    <label for="unidad">Unidad de negocio</label>
+    <select name="unidad" id="unidad">
+      {% for u in unidades %}
+        <option value="{{ u.id }}" {% if u.id == unidad_sel.id %}selected{% endif %}>{{ u.nombre }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="field">
+    <label for="anio">Año</label>
+    <input type="number" name="anio" id="anio" value="{{ anio_sel }}" min="2000" max="2100" style="width:6rem;">
+  </div>
+  <div class="field">
+    <label for="mes">Mes</label>
+    <select name="mes" id="mes">
+      {% for num, nombre in meses %}
+        <option value="{{ num }}" {% if num == mes_sel %}selected{% endif %}>{{ nombre }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <button class="btn primary" type="submit">Ver</button>
+</form>
+
+{% if vm.parametro %}
+  <div class="estado-mes {% if abierto %}abierto{% else %}cerrado{% endif %}">
+    <span class="badge {% if abierto %}ok{% else %}muted{% endif %}">
+      {% if abierto %}Mes habilitado{% else %}Mes cerrado{% endif %}
+    </span>
+    <span class="estado-mes-texto">
+      {% if abierto %}
+        el ingreso de novedades de {{ vm.parametro.get_mes_display }} {{ vm.parametro.anio }} está habilitado.
+      {% else %}
+        el ingreso de novedades de {{ vm.parametro.get_mes_display }} {{ vm.parametro.anio }} está cerrado;
+        solo un administrador puede habilitarlo.
+      {% endif %}
+    </span>
+    {% if user.is_staff %}
+      <form method="post" action="{% url 'capacidad:toggle_novedades' %}" style="margin-left:auto;">
+        {% csrf_token %}
+        <input type="hidden" name="parametro" value="{{ vm.parametro.id }}">
+        <button class="btn" type="submit">
+          {% if abierto %}Cerrar mes{% else %}Habilitar mes{% endif %}
+        </button>
+      </form>
+    {% endif %}
+  </div>
+
+  <div id="modulo-novedades">
+    {% include "capacidad/partials/_novedades_modulo.html" %}
+  </div>
+{% else %}
+  <div class="card"><div class="card-body">
+    No hay capacidades cargadas para {{ unidad_sel.nombre }} en {{ mes_sel }}/{{ anio_sel }}.
+    Créalas desde «Capacidad instalada mensual» con el botón «Crear mes».
+  </div></div>
+{% endif %}
+
+{% endif %}
+{% endblock %}

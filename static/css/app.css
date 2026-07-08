@@ -48,7 +48,15 @@
   }
 }
 /* Override manual del tema (botón) gana en ambas direcciones */
-:root[data-theme="light"] { color-scheme: light; }
+:root[data-theme="light"] {
+  --brand: #0B6E99; --brand-strong: #075985; --accent: #0D9488; --indigo: #4F46E5;
+  --success: #15803D; --warning: #B45309; --danger: #B91C1C;
+  --bg: #F8FAFC; --surface: #FFFFFF; --surface-2: #F1F5F9; --border: #E2E8F0;
+  --text: #0F172A; --muted: #64748B;
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, .06), 0 1px 3px rgba(15, 23, 42, .08);
+  --shadow: 0 4px 12px rgba(15, 23, 42, .08);
+  color-scheme: light;
+}
 :root[data-theme="dark"] {
   --brand: #38BDF8; --brand-strong: #0EA5E9; --accent: #2DD4BF; --indigo: #818CF8;
   --success: #4ADE80; --warning: #FBBF24; --danger: #F87171;
@@ -147,6 +155,51 @@ a:hover { text-decoration: underline; }
 .info-strip .info-item strong { color: var(--brand-strong); font-variant-numeric: tabular-nums; }
 .info-strip .info-note { color: var(--muted); font-size: .8rem; }
 
+/* Mensajes flash (django.contrib.messages) */
+.flash {
+  padding: .6rem .9rem; margin: 0 0 1rem; border-radius: var(--radius-sm);
+  border: 1px solid var(--border); border-left: 3px solid var(--muted);
+  background: var(--surface); font-size: .9rem;
+}
+.flash.success { border-left-color: var(--success); background: color-mix(in srgb, var(--success) 8%, var(--surface)); }
+.flash.error   { border-left-color: var(--danger);  background: color-mix(in srgb, var(--danger) 8%, var(--surface)); }
+
+/* Sección "Crear mes" (tarjeta separada de los filtros de consulta) */
+.crear-mes-card { border-left: 3px solid var(--accent); margin: 0 0 1.4rem; }
+.crear-mes-card h3 {
+  font-size: .85rem; text-transform: uppercase; letter-spacing: .05em;
+  color: var(--accent); margin-bottom: .35rem;
+}
+.crear-mes-desc { margin: 0 0 .75rem; color: var(--muted); font-size: .85rem; }
+
+/* --- Módulo de novedades --- */
+.estado-mes {
+  display: flex; align-items: center; gap: .7rem; flex-wrap: wrap;
+  padding: .55rem .9rem; margin: 0 0 1.1rem;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); font-size: .85rem;
+}
+.estado-mes.abierto { border-left: 3px solid var(--success); }
+.estado-mes.cerrado { border-left: 3px solid var(--muted); }
+.estado-mes-texto { color: var(--muted); }
+
+.nov-sede {
+  font-size: .9rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: .05em; color: var(--brand-strong); margin: 1.4rem 0 .6rem;
+}
+.nov-card { margin-bottom: .9rem; }
+.nov-head { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; margin-bottom: .6rem; }
+.nov-cifras { margin-left: auto; display: flex; gap: 1rem; flex-wrap: wrap; font-size: .84rem; color: var(--muted); }
+.nov-cifra strong { color: var(--text); font-variant-numeric: tabular-nums; }
+.nov-cifra.total strong { color: var(--brand-strong); font-size: 1.05rem; }
+.nov-tabla-wrap { margin-bottom: .7rem; }
+.nov-tabla { font-size: .85rem; }
+.nov-vacio { color: var(--muted); font-size: .85rem; margin: .2rem 0 .7rem; }
+.nov-form { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; }
+.nov-form select, .nov-form input { padding: .4rem .5rem; }
+.btn.danger { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 45%, var(--border)); }
+.btn.danger:hover { background: color-mix(in srgb, var(--danger) 10%, var(--surface)); }
+
 /* --- Tabla --- */
 .table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
 table.data { width: 100%; border-collapse: collapse; background: var(--surface); font-size: .9rem; }
@@ -166,6 +219,20 @@ table.data thead th {
 table.data thead th:last-child { border-right: none; }
 table.data td.num, table.data th.num { text-align: right; font-variant-numeric: tabular-nums; }
 
+/* Columnas destacadas: Total capacidad instalada y Total capacidad ajustada */
+table.data thead th.col-hl {
+  background: color-mix(in srgb, #000 18%, var(--brand-strong));
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+table.data td.col-hl {
+  background: color-mix(in srgb, var(--brand) 9%, transparent);
+  box-shadow: inset 3px 0 0 color-mix(in srgb, var(--accent) 55%, transparent);
+  font-weight: 700; color: var(--brand-strong);
+}
+table.data tr.total td.col-hl {
+  background: color-mix(in srgb, var(--brand) 16%, var(--surface-2));
+}
+
 /* Zebra striping sólo en filas de datos */
 table.data tbody tr.fila-dato:nth-of-type(even) { background: color-mix(in srgb, var(--surface-2) 55%, var(--surface)); }
 table.data tbody tr.fila-dato { transition: background var(--transition); }
@@ -179,8 +246,47 @@ table.data tr.sede-head td {
   border-left: 3px solid var(--brand);
   border-top: 2px solid var(--border);
 }
+/* Secciones de la vista mensual: sedes principales / sedes municipales */
+.seccion-sedes { margin-bottom: 2rem; }
+.seccion-sedes .table-wrap {
+  border: 1px solid var(--border); border-top: 3px solid var(--brand);
+  border-radius: var(--radius, 10px); overflow-x: auto;
+}
+.seccion-sedes.es-municipal .table-wrap { border-top-color: var(--accent); }
+.seccion-titulo {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 1rem; flex-wrap: wrap; margin: 0 0 .5rem;
+}
+.seccion-titulo h2 {
+  margin: 0; font-size: .95rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: .06em; color: var(--brand-strong);
+}
+.seccion-sedes.es-municipal .seccion-titulo h2 { color: var(--accent); }
+.seccion-resumen { display: flex; gap: 1rem; font-size: .82rem; color: var(--muted); }
+.seccion-resumen strong { color: var(--text); font-variant-numeric: tabular-nums; }
+
 /* Subtotales y total general */
 table.data tr.total td { font-weight: 700; background: var(--surface-2); }
+table.data tr.seccion-total td {
+  font-weight: 800;
+  background: color-mix(in srgb, var(--brand) 12%, var(--surface));
+  color: var(--brand-strong);
+}
+.seccion-sedes.es-municipal table.data tr.seccion-total td {
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+  color: var(--accent);
+}
+
+/* Banda de total general al pie de las secciones */
+.gran-total-strip {
+  display: flex; align-items: center; gap: 1.6rem; flex-wrap: wrap;
+  padding: .8rem 1rem; border-radius: var(--radius, 10px);
+  background: color-mix(in srgb, var(--brand) 16%, var(--surface));
+  border: 1px solid var(--brand); color: var(--brand-strong);
+}
+.gran-total-strip .gt-label { font-weight: 800; letter-spacing: .05em; }
+.gran-total-strip .gt-item { font-size: .9rem; }
+.gran-total-strip .gt-item strong { font-size: 1.15rem; font-variant-numeric: tabular-nums; margin-right: .3rem; }
 table.data tr.grand-total td {
   font-weight: 800; font-size: .95rem;
   background: color-mix(in srgb, var(--brand) 16%, var(--surface));
@@ -248,6 +354,15 @@ select, input[type="text"], input[type="number"] {
 
 /* Badge de método enfocable con pista de ayuda */
 table.data td .badge[title] { cursor: help; }
+
+/* Selector de método en la fila */
+.metodo-select {
+  font-size: .82rem; padding: .25rem .4rem; cursor: pointer;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--brand) 8%, var(--surface));
+  color: var(--brand-strong); font-weight: 600; max-width: 100%;
+}
+.metodo-select:hover { border-color: var(--brand); }
 
 /* Rejilla de citas por día de la semana (método POR_DIA_SEMANA) */
 .dias-grid { display: flex; flex-wrap: wrap; gap: .5rem; align-items: stretch; }

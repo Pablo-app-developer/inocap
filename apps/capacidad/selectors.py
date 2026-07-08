@@ -25,14 +25,30 @@ class GrupoSede:
 
 
 @dataclass
+class SeccionSedes:
+    """Bloque de la tabla mensual: sedes principales o sedes municipales."""
+
+    titulo: str
+    grupos: list = field(default_factory=list)
+    subtotal_citas_mes: int = 0
+    subtotal_neto: int = 0
+
+
+@dataclass
 class VistaMensual:
     unidad: UnidadNegocio
     anio: int
     mes: int
     parametro: ParametroMensual | None
     grupos: list = field(default_factory=list)
+    # Secciones en orden de render: sedes principales primero, municipales al final.
+    secciones: list = field(default_factory=list)
     total_citas_mes: int = 0
     total_neto: int = 0
+    # Totales para el módulo de novedades.
+    total_capacidad_total: int = 0  # Σ citas_mes_total (capacidad + ajuste)
+    total_descontar: int = 0
+    total_sumar: int = 0
     resumen: ResumenMensual | None = None
     meta_atenciones: int = 0
     cumplimiento_pct: Decimal | None = None
@@ -60,6 +76,9 @@ def vista_mensual(unidad: UnidadNegocio, anio: int, mes: int) -> VistaMensual:
     grupos: dict[int, GrupoSede] = {}
     total_citas_mes = 0
     total_neto = 0
+    total_capacidad_total = 0
+    total_descontar = 0
+    total_sumar = 0
     for cap in capacidades:
         sede = cap.sala.sede
         g = grupos.get(sede.id)
@@ -70,6 +89,9 @@ def vista_mensual(unidad: UnidadNegocio, anio: int, mes: int) -> VistaMensual:
         g.subtotal_neto += cap.neto_capacidad_ajustada
         total_citas_mes += cap.citas_mes
         total_neto += cap.neto_capacidad_ajustada
+        total_capacidad_total += cap.citas_mes_total
+        total_descontar += cap.total_descontar
+        total_sumar += cap.total_sumar
 
     resumen = ResumenMensual.objects.filter(
         unidad_negocio=unidad, anio=anio, mes=mes
@@ -93,14 +115,32 @@ def vista_mensual(unidad: UnidadNegocio, anio: int, mes: int) -> VistaMensual:
     conteo = conteo_mes(anio, mes)
     festivos_count = len(festivos_del_mes(anio, mes))
 
+    grupos_ordenados = sorted(grupos.values(), key=lambda g: g.sede.nombre)
+    secciones = []
+    for titulo, es_municipal in [("Sedes principales", False), ("Sedes municipales", True)]:
+        del_bloque = [g for g in grupos_ordenados if g.sede.es_municipal == es_municipal]
+        if del_bloque:
+            secciones.append(
+                SeccionSedes(
+                    titulo=titulo,
+                    grupos=del_bloque,
+                    subtotal_citas_mes=sum(g.subtotal_citas_mes for g in del_bloque),
+                    subtotal_neto=sum(g.subtotal_neto for g in del_bloque),
+                )
+            )
+
     return VistaMensual(
         unidad=unidad,
         anio=anio,
         mes=mes,
         parametro=parametro,
-        grupos=sorted(grupos.values(), key=lambda g: g.sede.nombre),
+        grupos=grupos_ordenados,
+        secciones=secciones,
         total_citas_mes=total_citas_mes,
         total_neto=total_neto,
+        total_capacidad_total=total_capacidad_total,
+        total_descontar=total_descontar,
+        total_sumar=total_sumar,
         resumen=resumen,
         meta_atenciones=meta,
         cumplimiento_pct=cumplimiento,

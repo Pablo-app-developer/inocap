@@ -1,0 +1,102 @@
+{% if error %}
+  <div class="flash error" role="alert">{{ error }}</div>
+{% endif %}
+
+<div class="info-strip nov-totales">
+  <span class="info-item">Capacidad instalada <strong>{{ vm.total_capacidad_total }}</strong></span>
+  <span class="info-item">Novedades − <strong>{{ vm.total_descontar }}</strong></span>
+  <span class="info-item">Novedades + <strong>{{ vm.total_sumar }}</strong></span>
+  <span class="info-item">Total capacidad ajustada <strong>{{ vm.total_neto }}</strong></span>
+</div>
+
+{% for g in vm.grupos %}
+  <h2 class="nov-sede">
+    {{ g.sede.nombre }}
+    {% if g.sede.es_municipal %}<span class="badge muted">municipal</span>{% endif %}
+  </h2>
+
+  {% for cap in g.filas %}
+  <div class="card nov-card">
+    <div class="card-body">
+      <div class="nov-head">
+        <strong>{{ cap.sala.nombre }}</strong>
+        {% if cap.sala.especialidad %}<span class="badge muted">{{ cap.sala.especialidad }}</span>{% endif %}
+        <span class="nov-cifras">
+          <span class="nov-cifra" title="Capacidad instalada del mes (con ajuste), calculada en Capacidad instalada mensual">
+            Capacidad instalada <strong>{{ cap.citas_mes_total }}</strong>
+          </span>
+          <span class="nov-cifra">− <strong>{{ cap.total_descontar }}</strong></span>
+          <span class="nov-cifra">+ <strong>{{ cap.total_sumar }}</strong></span>
+          <span class="nov-cifra total" title="Capacidad instalada − novedades a descontar + novedades a sumar">
+            Total ajustado <strong>{{ cap.neto_capacidad_ajustada }}</strong>
+          </span>
+        </span>
+      </div>
+
+      {% if cap.novedades.all %}
+        <div class="table-wrap nov-tabla-wrap">
+          <table class="data nov-tabla">
+            <thead>
+              <tr>
+                <th>Tipo</th><th>Signo</th><th class="num">Citas</th>
+                <th>Fecha</th><th>Descripción</th>{% if abierto %}<th>Acción</th>{% endif %}
+              </tr>
+            </thead>
+            <tbody>
+              {% for n in cap.novedades.all %}
+              <tr>
+                <td>{{ n.get_tipo_display }}</td>
+                <td>
+                  <span class="badge {% if n.signo == 'DESCONTAR' %}muted{% else %}ok{% endif %}">
+                    {{ n.get_signo_display }}
+                  </span>
+                </td>
+                <td class="num">{{ n.citas_afectadas }}</td>
+                <td>{{ n.fecha|default:"—" }}</td>
+                <td>{{ n.descripcion|default:"—" }}</td>
+                {% if abierto %}
+                <td>
+                  <button class="btn danger" type="button"
+                          hx-post="{% url 'capacidad:eliminar_novedad' n.id %}"
+                          hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                          hx-target="#modulo-novedades" hx-swap="innerHTML"
+                          hx-confirm="¿Eliminar esta novedad de {{ cap.sala.nombre }}?">Eliminar</button>
+                </td>
+                {% endif %}
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="nov-vacio">Sin novedades registradas este mes.</p>
+      {% endif %}
+
+      {% if abierto %}
+      <div class="nov-form" id="nov-form-{{ cap.id }}">
+        <select name="tipo" aria-label="Tipo de novedad">
+          {% for valor, etiqueta in tipos %}
+            <option value="{{ valor }}">{{ etiqueta }}</option>
+          {% endfor %}
+        </select>
+        <select name="signo" aria-label="Signo">
+          {% for valor, etiqueta in signos %}
+            <option value="{{ valor }}">{{ etiqueta }}</option>
+          {% endfor %}
+        </select>
+        <input type="number" name="citas_afectadas" min="1" step="1" value="1"
+               aria-label="Citas afectadas" style="width:5.5rem;">
+        <input type="date" name="fecha" aria-label="Fecha (opcional)">
+        <input type="text" name="descripcion" placeholder="Descripción (opcional)"
+               aria-label="Descripción" style="flex:1; min-width:180px;">
+        <button class="btn primary" type="button"
+                hx-post="{% url 'capacidad:agregar_novedad' cap.id %}"
+                hx-include="#nov-form-{{ cap.id }} [name]"
+                hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                hx-target="#modulo-novedades" hx-swap="innerHTML">Agregar</button>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+{% endfor %}
