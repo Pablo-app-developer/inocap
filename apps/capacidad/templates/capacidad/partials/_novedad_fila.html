@@ -1,5 +1,5 @@
 <tr id="novedad-{{ n.id }}">
-  <td>{{ n.get_tipo_display }}</td>
+  <td title="{{ n.get_tipo_display }}">{{ n.get_tipo_display }}</td>
   <td>
     <span class="badge {% if n.signo == 'DESCONTAR' %}muted{% else %}ok{% endif %}">
       {{ n.get_signo_display }}
@@ -7,7 +7,7 @@
   </td>
   <td class="num">{{ n.citas_afectadas }}</td>
   <td>{{ n.fecha|default:"—" }}</td>
-  <td>{{ n.descripcion|default:"—" }}</td>
+  <td title="{{ n.descripcion }}">{{ n.descripcion|default:"—" }}</td>
   {% if abierto %}
   <td class="nov-acciones">
     <button class="btn" type="button"

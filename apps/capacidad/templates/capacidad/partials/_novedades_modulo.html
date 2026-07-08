@@ -57,7 +57,9 @@
       <div class="nov-form" id="nov-form-{{ cap.id }}">
         <select name="tipo" aria-label="Tipo de novedad">
           {% for valor, etiqueta in tipos %}
-            <option value="{{ valor }}">{{ etiqueta }}</option>
+            <option value="{{ valor }}"
+              {% if valor == "TEST_EJERCICIO" %}title="Ej.: test de ejercicio, toma de electrolitos"{% endif %}
+            >{{ etiqueta }}</option>
           {% endfor %}
         </select>
         <select name="signo" aria-label="Signo">
@@ -66,10 +68,10 @@
           {% endfor %}
         </select>
         <input type="number" name="citas_afectadas" min="1" step="1" value="1"
-               aria-label="Citas afectadas" style="width:5.5rem;">
+               aria-label="Citas afectadas">
         <input type="date" name="fecha" aria-label="Fecha (opcional)">
         <input type="text" name="descripcion" placeholder="Descripción (opcional)"
-               aria-label="Descripción" style="flex:1; min-width:180px;">
+               aria-label="Descripción">
         <button class="btn primary" type="button"
                 hx-post="{% url 'capacidad:agregar_novedad' cap.id %}"
                 hx-include="#nov-form-{{ cap.id }} [name]"

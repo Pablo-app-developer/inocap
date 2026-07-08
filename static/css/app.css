@@ -108,22 +108,22 @@ a:hover { text-decoration: underline; }
 .app-shell { display: flex; align-items: flex-start; }
 
 .sidebar {
-  width: 250px; flex-shrink: 0;
-  padding: 1.1rem 1rem; border-right: 1px solid var(--border);
+  width: 190px; flex-shrink: 0;
+  padding: 1rem .8rem; border-right: 1px solid var(--border);
   background: var(--surface); min-height: calc(100vh - 65px);
 }
 .sidebar-titulo {
-  font-size: .74rem; font-weight: 800; text-transform: uppercase;
-  letter-spacing: .06em; color: var(--muted); margin-bottom: .8rem;
+  font-size: .7rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: .05em; color: var(--muted); margin-bottom: .7rem;
 }
-.sidebar-unidad { margin-bottom: 1.2rem; }
+.sidebar-unidad { margin-bottom: 1.1rem; }
 .sidebar-unidad-nombre {
-  display: block; font-weight: 700; font-size: .9rem; color: var(--text);
-  margin-bottom: .3rem;
+  display: block; font-weight: 700; font-size: .84rem; color: var(--text);
+  margin-bottom: .25rem; line-height: 1.25;
 }
 .sidebar-link {
-  display: block; padding: .35rem .5rem; margin-left: -.5rem;
-  border-radius: var(--radius-sm); font-size: .84rem; color: var(--muted);
+  display: block; padding: .3rem .45rem; margin-left: -.45rem;
+  border-radius: var(--radius-sm); font-size: .78rem; color: var(--muted);
   transition: background var(--transition), color var(--transition);
 }
 .sidebar-link:hover { background: var(--surface-2); color: var(--text); text-decoration: none; }
@@ -133,7 +133,7 @@ a:hover { text-decoration: underline; }
 }
 .sidebar-vacio { color: var(--muted); font-size: .85rem; }
 
-.container { flex: 1; min-width: 0; width: 100%; max-width: 100%; margin: 0; padding: 1.5rem 2rem; }
+.container { flex: 1; min-width: 0; width: 100%; max-width: 100%; margin: 0; padding: 1.5rem 1.5rem; }
 
 @media (max-width: 860px) {
   .app-shell { flex-direction: column; }
@@ -231,12 +231,31 @@ a:hover { text-decoration: underline; }
 .nov-cifra strong { color: var(--text); font-variant-numeric: tabular-nums; }
 .nov-cifra.total strong { color: var(--brand-strong); font-size: 1.05rem; }
 .nov-tabla-wrap { margin-bottom: .7rem; }
-.nov-tabla { font-size: .85rem; }
+.nov-tabla { font-size: .82rem; table-layout: fixed; width: 100%; }
+.nov-tabla th, .nov-tabla td {
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.nov-tabla th:nth-child(1), .nov-tabla td:nth-child(1) { width: 20%; }   /* Tipo */
+.nov-tabla th:nth-child(2), .nov-tabla td:nth-child(2) { width: 10%; }   /* Signo */
+.nov-tabla th:nth-child(3), .nov-tabla td:nth-child(3) { width: 7%; }    /* Citas */
+.nov-tabla th:nth-child(4), .nov-tabla td:nth-child(4) { width: 11%; }   /* Fecha */
+.nov-tabla th:nth-child(5), .nov-tabla td:nth-child(5) { width: 28%; white-space: normal; } /* Descripción */
+.nov-tabla th:nth-child(6), .nov-tabla td:nth-child(6) { width: 24%; }   /* Acción */
 .nov-vacio { color: var(--muted); font-size: .85rem; margin: .2rem 0 .7rem; }
-.nov-form { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; }
-.nov-form select, .nov-form input { padding: .4rem .5rem; }
+
+.nov-form {
+  display: flex; gap: .4rem; flex-wrap: wrap; align-items: center;
+  font-size: .82rem; padding-top: .3rem;
+}
+.nov-form select, .nov-form input { padding: .32rem .4rem; font-size: .82rem; }
+.nov-form select[name="tipo"] { max-width: 12rem; }
+.nov-form select[name="signo"] { max-width: 8rem; }
+.nov-form input[name="citas_afectadas"] { width: 3.6rem; }
+.nov-form input[name="fecha"] { width: 8.2rem; }
+.nov-form input[name="descripcion"] { flex: 1 1 140px; min-width: 120px; }
 .nov-acciones { display: flex; gap: .4rem; white-space: nowrap; }
-tr.nov-fila-edicion td { background: color-mix(in srgb, var(--accent) 8%, var(--surface)); }
+tr.nov-fila-edicion td { background: color-mix(in srgb, var(--accent) 8%, var(--surface)); white-space: normal; }
+tr.nov-fila-edicion { overflow: visible; }
 .btn.danger { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 45%, var(--border)); }
 .btn.danger:hover { background: color-mix(in srgb, var(--danger) 10%, var(--surface)); }
 
