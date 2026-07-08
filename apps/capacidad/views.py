@@ -266,6 +266,59 @@ def eliminar_novedad(request, pk):
 
 
 @login_required
+def editar_novedad(request, pk):
+    """Edición inline de una novedad ya registrada (solo si el mes está habilitado)."""
+    novedad = get_object_or_404(
+        Novedad.objects.select_related(
+            "capacidad_sala__sala", "capacidad_sala__parametro__unidad_negocio"
+        ),
+        pk=pk,
+    )
+    cap = novedad.capacidad_sala
+    abierto = cap.parametro.novedades_abiertas
+
+    if request.method == "POST":
+        if not abierto:
+            return _modulo_novedades_actualizado(
+                request, cap.parametro,
+                error="El ingreso de novedades de este mes no está habilitado.",
+            )
+        form = NovedadForm(request.POST, instance=novedad)
+        if form.is_valid():
+            form.save()
+            orm.recalcular(cap)
+            return _modulo_novedades_actualizado(request, cap.parametro)
+        return render(
+            request, "capacidad/partials/_novedad_form.html",
+            {"form": form, "n": novedad, "abierto": abierto},
+        )
+
+    if not abierto:
+        return render(
+            request, "capacidad/partials/_novedad_fila.html",
+            {"n": novedad, "abierto": abierto},
+        )
+    form = NovedadForm(instance=novedad)
+    return render(
+        request, "capacidad/partials/_novedad_form.html",
+        {"form": form, "n": novedad, "abierto": abierto},
+    )
+
+
+@login_required
+def fila_novedad(request, pk):
+    """Devuelve la fila de una novedad en modo lectura (botón Cancelar)."""
+    novedad = get_object_or_404(
+        Novedad.objects.select_related("capacidad_sala__parametro"), pk=pk
+    )
+    abierto = novedad.capacidad_sala.parametro.novedades_abiertas
+    return render(
+        request, "capacidad/partials/_novedad_fila.html",
+        {"n": novedad, "abierto": abierto},
+    )
+
+
+@login_required
 @require_POST
 def toggle_novedades(request):
     """Habilita/deshabilita el ingreso de novedades de un mes (solo admin)."""

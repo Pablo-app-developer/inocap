@@ -197,6 +197,8 @@ a:hover { text-decoration: underline; }
 .nov-vacio { color: var(--muted); font-size: .85rem; margin: .2rem 0 .7rem; }
 .nov-form { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; }
 .nov-form select, .nov-form input { padding: .4rem .5rem; }
+.nov-acciones { display: flex; gap: .4rem; white-space: nowrap; }
+tr.nov-fila-edicion td { background: color-mix(in srgb, var(--accent) 8%, var(--surface)); }
 .btn.danger { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 45%, var(--border)); }
 .btn.danger:hover { background: color-mix(in srgb, var(--danger) 10%, var(--surface)); }
 

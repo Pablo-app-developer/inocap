@@ -14,5 +14,7 @@ urlpatterns = [
     path("novedades/", views.novedades, name="novedades"),
     path("novedades/agregar/<int:cap_id>/", views.agregar_novedad, name="agregar_novedad"),
     path("novedades/<int:pk>/eliminar/", views.eliminar_novedad, name="eliminar_novedad"),
+    path("novedades/<int:pk>/editar/", views.editar_novedad, name="editar_novedad"),
+    path("novedades/<int:pk>/fila/", views.fila_novedad, name="fila_novedad"),
     path("novedades/habilitar/", views.toggle_novedades, name="toggle_novedades"),
 ]

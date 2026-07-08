@@ -1,0 +1,23 @@
+<tr id="novedad-{{ n.id }}">
+  <td>{{ n.get_tipo_display }}</td>
+  <td>
+    <span class="badge {% if n.signo == 'DESCONTAR' %}muted{% else %}ok{% endif %}">
+      {{ n.get_signo_display }}
+    </span>
+  </td>
+  <td class="num">{{ n.citas_afectadas }}</td>
+  <td>{{ n.fecha|default:"—" }}</td>
+  <td>{{ n.descripcion|default:"—" }}</td>
+  {% if abierto %}
+  <td class="nov-acciones">
+    <button class="btn" type="button"
+            hx-get="{% url 'capacidad:editar_novedad' n.id %}"
+            hx-target="#novedad-{{ n.id }}" hx-swap="outerHTML">Editar</button>
+    <button class="btn danger" type="button"
+            hx-post="{% url 'capacidad:eliminar_novedad' n.id %}"
+            hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+            hx-target="#modulo-novedades" hx-swap="innerHTML"
+            hx-confirm="¿Eliminar esta novedad de {{ n.capacidad_sala.sala.nombre }}?">Eliminar</button>
+  </td>
+  {% endif %}
+</tr>

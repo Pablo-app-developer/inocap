@@ -96,6 +96,61 @@ def test_eliminar_novedad_recalcula(client, escenario, usuario):
 
 
 @pytest.mark.django_db
+def test_editar_novedad_mes_abierto_recalcula(client, escenario, usuario):
+    _, param, cap = escenario
+    param.novedades_abiertas = True
+    param.save()
+    n = Novedad.objects.create(capacidad_sala=cap, citas_afectadas=5, signo="DESCONTAR")
+    orm.recalcular(cap)
+    client.force_login(usuario)
+
+    r = client.get(f"/novedades/{n.id}/editar/")
+    assert r.status_code == 200
+    assert "Guardar" in r.content.decode()
+
+    r = client.post(
+        f"/novedades/{n.id}/editar/",
+        {"tipo": "PERMISO", "signo": "DESCONTAR", "citas_afectadas": 9},
+    )
+    assert r.status_code == 200
+    n.refresh_from_db()
+    cap.refresh_from_db()
+    assert n.citas_afectadas == 9
+    assert n.tipo == "PERMISO"
+    assert cap.neto_capacidad_ajustada == 504 - 9
+
+
+@pytest.mark.django_db
+def test_editar_novedad_mes_cerrado_no_guarda(client, escenario, usuario):
+    _, param, cap = escenario  # novedades_abiertas=False por defecto
+    n = Novedad.objects.create(capacidad_sala=cap, citas_afectadas=5, signo="DESCONTAR")
+    orm.recalcular(cap)
+    client.force_login(usuario)
+
+    r = client.post(
+        f"/novedades/{n.id}/editar/",
+        {"tipo": "PERMISO", "signo": "DESCONTAR", "citas_afectadas": 9},
+    )
+    assert r.status_code == 200
+    assert "no está habilitado" in r.content.decode()
+    n.refresh_from_db()
+    assert n.citas_afectadas == 5
+
+
+@pytest.mark.django_db
+def test_cancelar_edicion_novedad(client, escenario, usuario):
+    _, param, cap = escenario
+    param.novedades_abiertas = True
+    param.save()
+    n = Novedad.objects.create(capacidad_sala=cap, citas_afectadas=5, signo="DESCONTAR")
+    client.force_login(usuario)
+
+    r = client.get(f"/novedades/{n.id}/fila/")
+    assert r.status_code == 200
+    assert "Editar" in r.content.decode()
+
+
+@pytest.mark.django_db
 def test_toggle_solo_staff(client, escenario, usuario, staff):
     _, param, _ = escenario
 
