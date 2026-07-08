@@ -240,7 +240,9 @@ a:hover { text-decoration: underline; }
 .nov-tabla th:nth-child(3), .nov-tabla td:nth-child(3) { width: 7%; }    /* Citas */
 .nov-tabla th:nth-child(4), .nov-tabla td:nth-child(4) { width: 11%; }   /* Fecha */
 .nov-tabla th:nth-child(5), .nov-tabla td:nth-child(5) { width: 28%; white-space: normal; } /* Descripción */
-.nov-tabla th:nth-child(6), .nov-tabla td:nth-child(6) { width: 24%; }   /* Acción */
+.nov-tabla th:nth-child(6), .nov-tabla td:nth-child(6) {
+  width: 24%; overflow: visible; white-space: normal;
+}   /* Acción: contiene botones, no truncar */
 .nov-vacio { color: var(--muted); font-size: .85rem; margin: .2rem 0 .7rem; }
 
 .nov-form {
@@ -253,7 +255,8 @@ a:hover { text-decoration: underline; }
 .nov-form input[name="citas_afectadas"] { width: 3.6rem; }
 .nov-form input[name="fecha"] { width: 8.2rem; }
 .nov-form input[name="descripcion"] { flex: 1 1 140px; min-width: 120px; }
-.nov-acciones { display: flex; gap: .4rem; white-space: nowrap; }
+.nov-acciones { display: flex; gap: .35rem; flex-wrap: wrap; }
+.nov-acciones .btn { padding: .3rem .55rem; font-size: .76rem; }
 tr.nov-fila-edicion td { background: color-mix(in srgb, var(--accent) 8%, var(--surface)); white-space: normal; }
 tr.nov-fila-edicion { overflow: visible; }
 .btn.danger { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 45%, var(--border)); }
