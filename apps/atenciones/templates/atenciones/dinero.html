@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block title %}Capacidad en $ · INO{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Capacidad en $</h1>
+<p class="page-sub">
+  Proyección monetaria: capacidad ajustada del mes × mezcla real de servicios y
+  entidades (atenciones con salida del mismo mes) × tarifas de convenios.
+</p>
+
+{% if sin_datos %}
+  <div class="card"><div class="card-body">
+    {% if user.is_superuser %}
+      No hay unidades de negocio. Carga datos con <code>python manage.py seed_demo</code>.
+    {% else %}
+      No tienes unidades de negocio asignadas. Contacta a un administrador para que
+      te habilite el acceso desde /admin/.
+    {% endif %}
+  </div></div>
+{% else %}
+
+<form method="get" class="toolbar" role="search">
+  <div class="field">
+    <label for="unidad">Unidad de negocio</label>
+    <select name="unidad" id="unidad">
+      {% for u in unidades %}
+        <option value="{{ u.id }}" {% if u.id == unidad_sel.id %}selected{% endif %}>{{ u.nombre }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="field">
+    <label for="anio">Año</label>
+    <input type="number" name="anio" id="anio" value="{{ anio_sel }}" min="2000" max="2100" style="width:6rem;">
+  </div>
+  <div class="field">
+    <label for="mes">Mes</label>
+    <select name="mes" id="mes">
+      {% for num, nombre in meses %}
+        <option value="{{ num }}" {% if num == mes_sel %}selected{% endif %}>{{ nombre }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <button class="btn primary" type="submit">Ver</button>
+</form>
+
+{% if not p.total_realizadas %}
+  <div class="card"><div class="card-body">
+    No hay atenciones realizadas ("Salida") de {{ unidad_sel.nombre }} en {{ mes_sel }}/{{ anio_sel }}.
+    Importa las atenciones del período con <code>importar_atenciones</code>.
+  </div></div>
+{% elif not p.capacidad_ajustada %}
+  <div class="card"><div class="card-body">
+    {{ unidad_sel.nombre }} no tiene capacidad calculada en {{ mes_sel }}/{{ anio_sel }}.
+    Créala en «Capacidad instalada mensual» con el botón «Crear mes».
+  </div></div>
+{% else %}
+
+  <div class="grid kpis" style="margin-bottom:1rem;">
+    <div class="card kpi-card accent-indigo"><div class="card-body kpi">
+      <div class="label">Capacidad ajustada</div><div class="value">{{ p.capacidad_ajustada }}</div>
+    </div></div>
+    <div class="card kpi-card accent-teal"><div class="card-body kpi">
+      <div class="label">Atenciones reales del mes</div><div class="value">{{ p.total_realizadas }}</div>
+    </div></div>
+    <div class="card kpi-card accent-brand"><div class="card-body kpi">
+      <div class="label">Capacidad en $</div>
+      <div class="value accent">$ {{ p.valor_total|floatformat:0 }}</div>
+    </div></div>
+  </div>
+
+  <div class="info-strip">
+    <span class="info-note">
+      Las citas proyectadas conservan fracciones (como el cálculo del Excel);
+      las tarifas con <span class="badge warn">promedio</span> son entidades sin
+      convenio para ese servicio (se usa la tarifa promedio).
+    </span>
+  </div>
+
+  {% for g in p.grupos %}
+  <details class="card dinero-grupo" {% if forloop.first %}open{% endif %}>
+    <summary class="card-body dinero-grupo-head">
+      <span class="dinero-grupo-nombre">{{ g.nombre }}</span>
+      <span class="dinero-cifras">
+        <span class="dinero-cifra">{{ g.pct|floatformat:2 }} %</span>
+        <span class="dinero-cifra" title="Citas proyectadas = capacidad ajustada × %">
+          {{ g.citas|floatformat:0 }} citas
+        </span>
+        <span class="dinero-cifra total">$ {{ g.valor|floatformat:0 }}</span>
+      </span>
+    </summary>
+    <div class="card-body" style="padding-top:0;">
+      <div class="table-wrap">
+        <table class="data dinero-tabla">
+          <thead>
+            <tr>
+              <th>Entidad</th><th class="num">%</th><th class="num">Citas</th>
+              <th class="num">Tarifa</th><th class="num">Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for e in g.entidades %}
+            <tr>
+              <td>
+                {{ e.entidad }}
+                {% if e.sin_tarifa %}<span class="badge bad">sin tarifa</span>
+                {% elif e.con_fallback %}<span class="badge warn">promedio</span>{% endif %}
+              </td>
+              <td class="num">{{ e.pct|floatformat:2 }} %</td>
+              <td class="num">{{ e.citas|floatformat:1 }}</td>
+              <td class="num">$ {{ e.tarifa_promedio|floatformat:0 }}</td>
+              <td class="num"><strong>$ {{ e.valor|floatformat:2 }}</strong></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+          <tfoot>
+            <tr class="total">
+              <td>Total {{ g.nombre|lower }}</td>
+              <td class="num">100 %</td>
+              <td class="num">{{ g.citas|floatformat:1 }}</td>
+              <td class="num"></td>
+              <td class="num"><strong>$ {{ g.valor|floatformat:2 }}</strong></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </details>
+  {% endfor %}
+
+  <div class="gran-total-strip" style="margin-top:1.2rem;">
+    <span class="gt-label">CAPACIDAD EN $ — {{ unidad_sel.nombre|upper }}</span>
+    <span class="gt-item"><strong>$ {{ p.valor_total|floatformat:2 }}</strong></span>
+  </div>
+
+{% endif %}
+{% endif %}
+{% endblock %}

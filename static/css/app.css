@@ -267,6 +267,22 @@ tr.nov-fila-edicion td { background: color-mix(in srgb, var(--accent) 8%, var(--
 .btn.danger { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 45%, var(--border)); }
 .btn.danger:hover { background: color-mix(in srgb, var(--danger) 10%, var(--surface)); }
 
+/* --- Capacidad en $ --- */
+.dinero-grupo { margin-bottom: .7rem; }
+.dinero-grupo > summary { cursor: pointer; list-style: none; }
+.dinero-grupo > summary::-webkit-details-marker { display: none; }
+.dinero-grupo-head { display: flex; align-items: center; gap: .8rem; flex-wrap: wrap; }
+.dinero-grupo-head::before {
+  content: "▸"; color: var(--muted); transition: transform var(--transition);
+}
+details[open] > .dinero-grupo-head::before { content: "▾"; }
+.dinero-grupo-nombre { font-weight: 700; }
+.dinero-cifras { margin-left: auto; display: flex; gap: 1.2rem; font-size: .86rem; color: var(--muted); }
+.dinero-cifra { font-variant-numeric: tabular-nums; }
+.dinero-cifra.total { font-weight: 800; color: var(--brand-strong); font-size: 1rem; }
+.dinero-tabla { font-size: .84rem; }
+.badge.bad { background: color-mix(in srgb, var(--danger) 14%, transparent); color: var(--danger); }
+
 /* --- Tabla --- */
 .table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
 table.data { width: 100%; border-collapse: collapse; background: var(--surface); font-size: .9rem; }
