@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "apps.core",
     "apps.calendario",
     "apps.capacidad",
+    "apps.atenciones",
 ]
 
 MIDDLEWARE = [

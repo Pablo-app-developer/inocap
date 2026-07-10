@@ -5,3 +5,10 @@ db.sqlite3
 .env
 staticfiles/
 .pytest_cache/
+
+# Datos sensibles que NUNCA deben subir al repo:
+# - MEDICLOUD contiene datos personales y clínicos de pacientes (y pesa >100MB)
+# - VALORES CONTRATACION contiene tarifas confidenciales de convenios
+2026 MEDICLOUD.xlsx
+VALORES CONTRATACION*.xlsx
+ultimo prompt.txt
