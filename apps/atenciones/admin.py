@@ -1,6 +1,26 @@
 from django.contrib import admin
 
-from .models import Atencion, Entidad, MapeoEspecialidad, TarifaConvenio
+from .models import (
+    Atencion,
+    CodigoServicioGrupo,
+    Entidad,
+    GrupoServicio,
+    MapeoEspecialidad,
+    TarifaConvenio,
+)
+
+
+class CodigoServicioGrupoInline(admin.TabularInline):
+    model = CodigoServicioGrupo
+    extra = 0
+
+
+@admin.register(GrupoServicio)
+class GrupoServicioAdmin(admin.ModelAdmin):
+    list_display = ("nombre", "unidad_negocio", "orden", "es_otras")
+    list_filter = ("unidad_negocio",)
+    list_editable = ("orden",)
+    inlines = [CodigoServicioGrupoInline]
 
 
 @admin.register(Entidad)

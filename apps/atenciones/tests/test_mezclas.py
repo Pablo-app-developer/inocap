@@ -71,3 +71,29 @@ def test_mezcla_entidades_toda_la_unidad(unidad, datos):
 @pytest.mark.django_db
 def test_mes_sin_datos_devuelve_vacio(unidad):
     assert selectors.mezcla_servicios(unidad, 2026, 3) == []
+
+
+@pytest.mark.django_db
+def test_mezcla_agrupada_fusiona_variantes_y_residual(unidad, datos):
+    """El CUPS base y su variante /PROGRAMAS caen al mismo grupo; un código
+    sin asignar cae al grupo residual (es_otras)."""
+    from apps.atenciones.models import CodigoServicioGrupo, GrupoServicio
+
+    espiro = GrupoServicio.objects.create(unidad_negocio=unidad, nombre="Espirometría pre y post", orden=0)
+    CodigoServicioGrupo.objects.create(grupo=espiro, codigo="893801")
+    CodigoServicioGrupo.objects.create(grupo=espiro, codigo="CPI_15")
+    otras = GrupoServicio.objects.create(unidad_negocio=unidad, nombre="Otras pruebas", orden=1, es_otras=True)
+
+    sanitas, _ = datos
+    # variante /PROGRAMAS del mismo servicio + un código no asignado
+    _atencion(unidad, 10, "CPI_15", "ESPIROMETRIA / PROGRAMAS", "Salida", sanitas)
+    _atencion(unidad, 11, "999999", "PRUEBA RARA", "Salida", sanitas)
+
+    mezcla = selectors.mezcla_servicios_agrupada(unidad, 2026, 1)
+
+    # 3 espirometrías CUPS + 1 CPI = 4 juntas; FENO (875101) sin asignar → Otras; 999999 → Otras
+    assert [(m.nombre, m.conteo) for m in mezcla] == [
+        ("Espirometría pre y post", 4),
+        ("Otras pruebas", 2),
+    ]
+    assert sum(m.porcentaje for m in mezcla) == 1

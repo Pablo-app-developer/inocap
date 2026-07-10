@@ -115,6 +115,54 @@ class MapeoEspecialidad(models.Model):
         return f"{self.especialidad} → {self.unidad_negocio}"
 
 
+class GrupoServicio(models.Model):
+    """Grupo de servicios para reportes/mezclas (ej. 'Espirometría pre y post'
+    agrupa el CUPS 893805 y sus variantes /PROGRAMAS e /INVESTIGACIÓN).
+
+    Regla confirmada con el usuario: las variantes con sufijo son el mismo
+    servicio que su base; la resistencia SIMPLE no es la misma pre y post."""
+
+    unidad_negocio = models.ForeignKey(
+        UnidadNegocio, on_delete=models.CASCADE, related_name="grupos_servicio"
+    )
+    nombre = models.CharField(max_length=120)
+    orden = models.PositiveIntegerField(default=0)
+    es_otras = models.BooleanField(
+        "Grupo residual ('Otras pruebas')", default=False,
+        help_text="Recoge además cualquier código sin asignar de la unidad.",
+    )
+
+    class Meta:
+        verbose_name = "Grupo de servicio"
+        verbose_name_plural = "Grupos de servicio"
+        ordering = ["unidad_negocio", "orden", "nombre"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["unidad_negocio", "nombre"], name="uniq_grupo_unidad_nombre"
+            )
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.nombre} ({self.unidad_negocio})"
+
+
+class CodigoServicioGrupo(models.Model):
+    """Asignación de un código de servicio (TC Codi) a un grupo."""
+
+    grupo = models.ForeignKey(GrupoServicio, on_delete=models.CASCADE, related_name="codigos")
+    codigo = models.CharField(max_length=30, db_index=True)
+
+    class Meta:
+        verbose_name = "Código de servicio del grupo"
+        verbose_name_plural = "Códigos de servicio del grupo"
+        constraints = [
+            models.UniqueConstraint(fields=["grupo", "codigo"], name="uniq_codigo_por_grupo")
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.codigo} → {self.grupo.nombre}"
+
+
 class Atencion(models.Model):
     """Una atención (cita) de Medicloud. Sin datos personales del paciente."""
 
