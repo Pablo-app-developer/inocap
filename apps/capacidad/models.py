@@ -185,6 +185,7 @@ class TipoNovedad(models.TextChoices):
     VACACIONES = "VACACIONES", "Vacaciones"
     CURSO = "CURSO", "Capacitación aprobada por gerencia"
     REUNION = "REUNION", "Reunión autorizada por gerencia"
+    REUNION_GENERAL = "REUNION_GENERAL", "Reunión"
     MANTENIMIENTO = "MANTENIMIENTO", "Mantenimiento autorizado"
     FESTIVO = "FESTIVO", "Festivo"
     TEST_EJERCICIO = "TEST_EJERCICIO", "Prueba/procedimiento (desplaza consultas)"
