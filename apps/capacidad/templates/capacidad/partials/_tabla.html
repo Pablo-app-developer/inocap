@@ -1,6 +1,7 @@
+{% load l10n %}
 {% if not vm.parametro %}
   <div class="card"><div class="card-body">
-    No hay parámetros ni capacidades cargadas para {{ vm.unidad.nombre }} en {{ vm.mes }}/{{ vm.anio }}.
+    No hay parámetros ni capacidades cargadas para {{ vm.unidad.nombre }} en {{ vm.mes }}/{{ vm.anio|unlocalize }}.
     Créalos desde <a href="/admin/">Administración</a>.
   </div></div>
 {% else %}

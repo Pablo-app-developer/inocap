@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load l10n %}
 {% block title %}Capacidad instalada mensual · INO{% endblock %}
 
 {% block content %}
@@ -27,7 +28,7 @@
   </div>
   <div class="field">
     <label for="anio">Año</label>
-    <input type="number" name="anio" id="anio" value="{{ anio_sel }}" min="2000" max="2100" style="width:6rem;">
+    <input type="number" name="anio" id="anio" value="{{ anio_sel|unlocalize }}" min="2000" max="2100" style="width:6rem;">
   </div>
   <div class="field">
     <label for="mes">Mes</label>
@@ -46,7 +47,7 @@
     <p class="crear-mes-desc">
       {% if origen_mes %}
         Crea un mes nuevo copiando la parametrización de
-        <strong>{{ origen_mes.get_mes_display }} {{ origen_mes.anio }}</strong>
+        <strong>{{ origen_mes.get_mes_display }} {{ origen_mes.anio|unlocalize }}</strong>
         (sin novedades ni ajustes) y recalcula con el calendario del mes.
       {% else %}
         Crea el mes con las salas activas en cero.
@@ -57,7 +58,7 @@
       <input type="hidden" name="unidad" value="{{ unidad_sel.id }}">
       <div class="field">
         <label for="crear-anio">Año</label>
-        <input type="number" name="anio" id="crear-anio" value="{{ sig_anio }}" min="2000" max="2100" style="width:6rem;">
+        <input type="number" name="anio" id="crear-anio" value="{{ sig_anio|unlocalize }}" min="2000" max="2100" style="width:6rem;">
       </div>
       <div class="field">
         <label for="crear-mes">Mes</label>
@@ -100,7 +101,7 @@
     <span class="info-item"><strong>{{ vm.festivos_count }}</strong> festivo{{ vm.festivos_count|pluralize }}</span>
     <span class="info-note">
       {% if vm.parametro.modo == 'CALENDARIO' %}
-        días reales del calendario de {{ vm.mes }}/{{ vm.anio }} (festivos descontados)
+        días reales del calendario de {{ vm.mes }}/{{ vm.anio|unlocalize }} (festivos descontados)
       {% else %}
         el mes tiene estos días reales, pero en modo fijo se usan {{ vm.parametro.dias_lav }}×{{ vm.parametro.semanas_mes }} L–V y {{ vm.parametro.sabados_semana }}×{{ vm.parametro.semanas_mes }} sábados
       {% endif %}

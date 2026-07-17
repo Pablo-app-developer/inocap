@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load l10n %}
 {% block title %}Novedades del mes · INO{% endblock %}
 
 {% block content %}
@@ -30,7 +31,7 @@
   </div>
   <div class="field">
     <label for="anio">Año</label>
-    <input type="number" name="anio" id="anio" value="{{ anio_sel }}" min="2000" max="2100" style="width:6rem;">
+    <input type="number" name="anio" id="anio" value="{{ anio_sel|unlocalize }}" min="2000" max="2100" style="width:6rem;">
   </div>
   <div class="field">
     <label for="mes">Mes</label>
@@ -50,9 +51,9 @@
     </span>
     <span class="estado-mes-texto">
       {% if abierto %}
-        el ingreso de novedades de {{ vm.parametro.get_mes_display }} {{ vm.parametro.anio }} está habilitado.
+        el ingreso de novedades de {{ vm.parametro.get_mes_display }} {{ vm.parametro.anio|unlocalize }} está habilitado.
       {% else %}
-        el ingreso de novedades de {{ vm.parametro.get_mes_display }} {{ vm.parametro.anio }} está cerrado;
+        el ingreso de novedades de {{ vm.parametro.get_mes_display }} {{ vm.parametro.anio|unlocalize }} está cerrado;
         solo un administrador puede habilitarlo.
       {% endif %}
     </span>
@@ -72,7 +73,7 @@
   </div>
 {% else %}
   <div class="card"><div class="card-body">
-    No hay capacidades cargadas para {{ unidad_sel.nombre }} en {{ mes_sel }}/{{ anio_sel }}.
+    No hay capacidades cargadas para {{ unidad_sel.nombre }} en {{ mes_sel }}/{{ anio_sel|unlocalize }}.
     Créalas desde «Capacidad instalada mensual» con el botón «Crear mes».
   </div></div>
 {% endif %}

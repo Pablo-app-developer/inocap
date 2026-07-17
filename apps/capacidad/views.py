@@ -46,6 +46,16 @@ def dashboard(request):
     return render(request, "capacidad/dashboard.html", {"tarjetas": tarjetas, "seccion": "dashboard"})
 
 
+def _entero(valor, defecto):
+    """int tolerante a valores localizados ('2.026' por USE_THOUSAND_SEPARATOR)."""
+    if valor is None:
+        return defecto
+    try:
+        return int(str(valor).replace(".", "").replace(",", ""))
+    except ValueError:
+        return defecto
+
+
 def _seleccion_periodo(request):
     """Resuelve (unidades, unidad, periodos, anio, mes) desde los filtros GET.
 
@@ -65,8 +75,8 @@ def _seleccion_periodo(request):
         anio_def, mes_def = periodos[0]
     else:
         anio_def, mes_def = hoy.year, hoy.month
-    anio = int(request.GET.get("anio", anio_def))
-    mes = int(request.GET.get("mes", mes_def))
+    anio = _entero(request.GET.get("anio"), anio_def)
+    mes = _entero(request.GET.get("mes"), mes_def)
     return unidades, unidad, periodos, anio, mes
 
 
@@ -104,8 +114,8 @@ def crear_mes(request):
     unidad = get_object_or_404(UnidadNegocio, pk=request.POST.get("unidad"))
     accesos.verificar_acceso(request.user, unidad)
     try:
-        anio = int(request.POST.get("anio", ""))
-        mes = int(request.POST.get("mes", ""))
+        anio = _entero(request.POST.get("anio"), 0)
+        mes = _entero(request.POST.get("mes"), 0)
         if not (1 <= mes <= 12 and 2000 <= anio <= 2100):
             raise ValueError("Periodo fuera de rango.")
         nuevo = meses.crear_mes(unidad, anio, mes)

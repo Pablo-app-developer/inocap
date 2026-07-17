@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load l10n %}
 {% block title %}Capacidad en $ · INO{% endblock %}
 
 {% block content %}
@@ -30,7 +31,7 @@
   </div>
   <div class="field">
     <label for="anio">Año</label>
-    <input type="number" name="anio" id="anio" value="{{ anio_sel }}" min="2000" max="2100" style="width:6rem;">
+    <input type="number" name="anio" id="anio" value="{{ anio_sel|unlocalize }}" min="2000" max="2100" style="width:6rem;">
   </div>
   <div class="field">
     <label for="mes">Mes</label>
@@ -45,12 +46,12 @@
 
 {% if not p.total_realizadas %}
   <div class="card"><div class="card-body">
-    No hay atenciones realizadas ("Salida") de {{ unidad_sel.nombre }} en {{ mes_sel }}/{{ anio_sel }}.
+    No hay atenciones realizadas ("Salida") de {{ unidad_sel.nombre }} en {{ mes_sel }}/{{ anio_sel|unlocalize }}.
     Importa las atenciones del período con <code>importar_atenciones</code>.
   </div></div>
 {% elif not p.capacidad_ajustada %}
   <div class="card"><div class="card-body">
-    {{ unidad_sel.nombre }} no tiene capacidad calculada en {{ mes_sel }}/{{ anio_sel }}.
+    {{ unidad_sel.nombre }} no tiene capacidad calculada en {{ mes_sel }}/{{ anio_sel|unlocalize }}.
     Créala en «Capacidad instalada mensual» con el botón «Crear mes».
   </div></div>
 {% else %}
