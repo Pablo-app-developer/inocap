@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load l10n %}
+{% load dinero_extras %}
 {% block title %}Capacidad en $ · INO{% endblock %}
 
 {% block content %}
@@ -82,7 +83,7 @@
     <summary class="card-body dinero-grupo-head">
       <span class="dinero-grupo-nombre">{{ g.nombre }}</span>
       <span class="dinero-cifras">
-        <span class="dinero-cifra">{{ g.pct|floatformat:2 }} %</span>
+        <span class="dinero-cifra">{{ g.pct|porcentaje|floatformat:2 }} %</span>
         <span class="dinero-cifra" title="Citas proyectadas = capacidad ajustada × %">
           {{ g.citas|floatformat:0 }} citas
         </span>
@@ -106,7 +107,7 @@
                 {% if e.sin_tarifa %}<span class="badge bad">sin tarifa</span>
                 {% elif e.con_fallback %}<span class="badge warn">promedio</span>{% endif %}
               </td>
-              <td class="num">{{ e.pct|floatformat:2 }} %</td>
+              <td class="num">{{ e.pct|porcentaje|floatformat:2 }} %</td>
               <td class="num">{{ e.citas|floatformat:1 }}</td>
               <td class="num">$ {{ e.tarifa_promedio|floatformat:0 }}</td>
               <td class="num"><strong>$ {{ e.valor|floatformat:2 }}</strong></td>
