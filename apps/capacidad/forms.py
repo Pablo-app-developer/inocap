@@ -1,5 +1,7 @@
 from django import forms
 
+from apps.core.models import Sala
+
 from .models import CapacidadSala, Novedad
 
 
@@ -43,6 +45,22 @@ class CapacidadSalaForm(forms.ModelForm):
             "tiempo_estandar_horas": forms.NumberInput(attrs={"step": "0.05", "min": "0.001"}),
             "ajuste_sobreatencion": forms.NumberInput(attrs={"step": "1"}),
             "observaciones": forms.TextInput(),
+        }
+
+
+class SalaForm(forms.ModelForm):
+    """Alta de una sala/ítem nuevo dentro de una sede (botón "+ Agregar sala" de /mensual/).
+
+    unidad_negocio, sede y orden los fija la vista; entra con capacidad en cero
+    (igual que una sala nueva al correr `crear_mes`), se llena con «Editar».
+    """
+
+    class Meta:
+        model = Sala
+        fields = ["nombre", "especialidad", "metodo_calculo", "atiende_sabados"]
+        widgets = {
+            "nombre": forms.TextInput(attrs={"placeholder": "Nombre de la sala/ítem", "style": "width:9rem;"}),
+            "especialidad": forms.TextInput(attrs={"placeholder": "Especialidad (opcional)", "style": "width:9rem;"}),
         }
 
 

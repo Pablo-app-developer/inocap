@@ -1,0 +1,10 @@
+{% load l10n %}
+<tr id="agregar-sala-{{ sede.id }}" class="fila-agregar">
+  <td colspan="13">
+    <button class="btn" type="button"
+            hx-get="{% url 'capacidad:agregar_sala' sede.id %}?unidad={{ unidad.id }}&anio={{ anio|unlocalize }}&mes={{ mes }}"
+            hx-target="#agregar-sala-{{ sede.id }}" hx-swap="outerHTML">
+      ＋ Agregar sala en {{ sede.nombre }}
+    </button>
+  </td>
+</tr>

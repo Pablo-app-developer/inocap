@@ -18,10 +18,10 @@ from django.urls import reverse
 from django.views.decorators.http import require_POST
 
 from apps.core import accesos
-from apps.core.models import MetodoCalculo, UnidadNegocio
+from apps.core.models import MetodoCalculo, Sala, Sede, UnidadNegocio
 
 from . import selectors
-from .forms import CapacidadSalaForm, CapacidadSemanalForm, NovedadForm
+from .forms import CapacidadSalaForm, CapacidadSemanalForm, NovedadForm, SalaForm
 from .models import MESES, CapacidadSala, Novedad, ParametroMensual, Signo, TipoNovedad
 from .services import meses, orm
 
@@ -189,6 +189,60 @@ def fila_capacidad(request, pk):
     )
     accesos.verificar_acceso(request.user, cap.sala.unidad_negocio)
     return render(request, "capacidad/partials/_fila.html", {"cap": cap})
+
+
+def _contexto_agregar_sala(request, sede_id):
+    """Resuelve (sede, unidad, anio, mes) desde GET o POST y valida acceso."""
+    sede = get_object_or_404(Sede, pk=sede_id)
+    datos = request.POST if request.method == "POST" else request.GET
+    unidad = get_object_or_404(UnidadNegocio, pk=datos.get("unidad"))
+    accesos.verificar_acceso(request.user, unidad)
+    anio = _entero(datos.get("anio"), 0)
+    mes = _entero(datos.get("mes"), 0)
+    return sede, unidad, anio, mes
+
+
+@login_required
+def agregar_sala(request, sede_id):
+    """Alta de una sala/ítem nuevo en una sede, con capacidad en cero para el
+    mes en curso (se llena luego con "Editar", igual que una sala nueva
+    creada al correr `crear_mes`)."""
+    sede, unidad, anio, mes = _contexto_agregar_sala(request, sede_id)
+    parametro = get_object_or_404(ParametroMensual, unidad_negocio=unidad, anio=anio, mes=mes)
+
+    if request.method == "POST":
+        form = SalaForm(request.POST)
+        if form.is_valid():
+            sala = form.save(commit=False)
+            sala.unidad_negocio = unidad
+            sala.sede = sede
+            sala.orden = Sala.objects.filter(sede=sede, unidad_negocio=unidad).count()
+            sala.save()
+            cap = CapacidadSala.objects.create(sala=sala, parametro=parametro)
+            orm.recalcular(cap)
+            ctx = _tabla_context(unidad, anio, mes)
+            ctx["fila_actualizada_id"] = cap.id
+            return render(request, "capacidad/partials/_tabla.html", ctx)
+    else:
+        metodo_inicial = (
+            MetodoCalculo.POR_DIA_SEMANA if sede.es_municipal else MetodoCalculo.POR_HORAS
+        )
+        form = SalaForm(initial={"metodo_calculo": metodo_inicial})
+
+    return render(
+        request, "capacidad/partials/_fila_agregar_sala.html",
+        {"form": form, "sede": sede, "unidad": unidad, "anio": anio, "mes": mes},
+    )
+
+
+@login_required
+def cancelar_agregar_sala(request, sede_id):
+    """Vuelve al botón "+ Agregar sala" (cancela el formulario sin guardar)."""
+    sede, unidad, anio, mes = _contexto_agregar_sala(request, sede_id)
+    return render(
+        request, "capacidad/partials/_fila_agregar_sala_boton.html",
+        {"sede": sede, "unidad": unidad, "anio": anio, "mes": mes},
+    )
 
 
 # --------------------------------------------------------------------------- #

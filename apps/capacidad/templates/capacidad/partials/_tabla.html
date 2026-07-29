@@ -44,6 +44,7 @@
         {% for cap in g.filas %}
           {% include "capacidad/partials/_fila.html" %}
         {% endfor %}
+        {% include "capacidad/partials/_fila_agregar_sala_boton.html" with sede=g.sede unidad=vm.unidad anio=vm.anio mes=vm.mes %}
         <tr class="total">
           <td colspan="7">Subtotal {{ g.sede.nombre }}</td>
           <td class="num col-hl">{{ g.subtotal_citas_mes }}</td>
