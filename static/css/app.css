@@ -517,20 +517,26 @@ table.data td .badge[title] { cursor: help; }
 .sede-card > summary {
   cursor: pointer; list-style: none; display: flex; align-items: center;
   gap: .7rem; flex-wrap: wrap; padding: .65rem 1rem;
-  background: color-mix(in srgb, var(--brand) 8%, var(--surface));
-  border-left: 3px solid var(--brand);
+  background: var(--brand-strong);
+  border-left: 3px solid var(--brand-strong);
 }
-.sede-card.es-municipal > summary { border-left-color: var(--accent); }
+.sede-card.es-municipal > summary {
+  background: color-mix(in srgb, #000 15%, var(--accent));
+  border-left-color: color-mix(in srgb, #000 15%, var(--accent));
+}
 .sede-card > summary::-webkit-details-marker { display: none; }
-.sede-card > summary::before { content: "▸"; color: var(--muted); }
+.sede-card > summary::before { content: "▸"; color: rgba(255,255,255,.75); }
 .sede-card[open] > summary::before { content: "▾"; }
 .sede-card-nombre {
   font-weight: 800; text-transform: uppercase; letter-spacing: .04em;
-  font-size: .85rem; color: var(--brand-strong);
+  font-size: .85rem; color: #fff;
 }
-.sede-card.es-municipal .sede-card-nombre { color: var(--accent); }
-.sede-card-cifras { margin-left: auto; display: flex; gap: 1.1rem; font-size: .82rem; color: var(--muted); }
-.sede-card-cifras strong { color: var(--text); font-variant-numeric: tabular-nums; }
+.sede-card.es-municipal .sede-card-nombre { color: #fff; }
+.sede-card-cifras {
+  margin-left: auto; display: flex; gap: 1.1rem; font-size: .82rem;
+  color: rgba(255,255,255,.75);
+}
+.sede-card-cifras strong { color: #fff; font-variant-numeric: tabular-nums; }
 .sede-card-body { padding: .8rem 1rem 1rem; }
 
 /* Lista de salas: filas-tarjeta en vez de <table> (no debe leerse como Excel) */
