@@ -5,8 +5,8 @@
 {% block content %}
 <h1 class="page-title">Resumen anual — indicador de cumplimiento</h1>
 <p class="page-sub">
-  Meta de atenciones vs. realizadas, y facturado vs. estándar de capacidad en $,
-  mes a mes — equivalente a la hoja RESUMEN del Excel.
+  Equivalente a la hoja RESUMEN del Excel, separado en dos secciones:
+  atenciones (capacidad y cumplimiento) y dinero (facturación y presupuesto).
 </p>
 
 {% if sin_datos %}
@@ -36,69 +36,99 @@
   <button class="btn primary" type="submit">Ver</button>
 </form>
 
-<div class="table-wrap">
-  <table class="data">
-    <thead>
-      <tr>
-        <th>Mes</th>
-        <th class="num">Meta atenciones</th>
-        <th class="num">Atenciones realizadas</th>
-        <th class="num">Cumplimiento %</th>
-        <th class="num">Estándar capacidad</th>
-        <th class="num">Facturado contab.</th>
-        <th class="num">Cumplimiento %</th>
-        <th class="num">Presupuesto {{ anio_sel|unlocalize }}</th>
-        <th class="num">Meta 10 %</th>
-        <th class="num">Presupuesto + meta</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for f in filas %}
-      <tr>
-        <td>{{ f.mes }}</td>
-        <td class="num">{{ f.meta_atenciones }}</td>
-        <td class="num">{{ f.atenciones_realizadas }}</td>
-        <td class="num">{% if f.cumpl_atenciones is not None %}{{ f.cumpl_atenciones|floatformat:0 }} %{% else %}—{% endif %}</td>
-        <td class="num">$ {{ f.estandar_capacidad|floatformat:0 }}</td>
-        <td class="num">$ {{ f.facturado_contab|floatformat:0 }}</td>
-        <td class="num">{% if f.cumpl_dinero is not None %}{{ f.cumpl_dinero|floatformat:0 }} %{% else %}—{% endif %}</td>
-        <td class="num">$ {{ f.presupuesto|floatformat:0 }}</td>
-        <td class="num">$ {{ f.meta_10|floatformat:0 }}</td>
-        <td class="num">$ {{ f.presupuesto_mas_meta|floatformat:0 }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-    <tfoot>
-      <tr class="total">
-        <td>Total {{ anio_sel|unlocalize }}</td>
-        <td class="num">{{ total.meta_atenciones }}</td>
-        <td class="num">{{ total.atenciones_realizadas }}</td>
-        <td class="num">{% if total.cumpl_atenciones is not None %}{{ total.cumpl_atenciones|floatformat:0 }} %{% else %}—{% endif %}</td>
-        <td class="num">$ {{ total.estandar_capacidad|floatformat:0 }}</td>
-        <td class="num">$ {{ total.facturado_contab|floatformat:0 }}</td>
-        <td class="num">{% if total.cumpl_dinero is not None %}{{ total.cumpl_dinero|floatformat:0 }} %{% else %}—{% endif %}</td>
-        <td class="num">$ {{ total.presupuesto|floatformat:0 }}</td>
-        <td class="num">$ {{ total.meta_10|floatformat:0 }}</td>
-        <td class="num">$ {{ total.presupuesto_mas_meta|floatformat:0 }}</td>
-      </tr>
-    </tfoot>
-  </table>
-</div>
+<section class="resumen-seccion">
+  <h2>Atenciones</h2>
+  <div class="table-wrap">
+    <table class="data">
+      <thead>
+        <tr>
+          <th>Mes</th>
+          <th class="num" title="Capacidad bruta del mes, antes de novedades (incapacidades, permisos, festivos, etc.)">Capacidad instalada</th>
+          <th class="num" title="Capacidad instalada + ajustes − novedades = la meta real del mes">Capacidad ajustada (meta)</th>
+          <th class="num">Atenciones realizadas</th>
+          <th class="num">Cumplimiento %</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for f in filas %}
+        <tr>
+          <td>{{ f.mes }}</td>
+          <td class="num">{{ f.capacidad_instalada }}</td>
+          <td class="num">{{ f.meta_atenciones }}</td>
+          <td class="num">{{ f.atenciones_realizadas }}</td>
+          <td class="num">{% if f.cumpl_atenciones is not None %}{{ f.cumpl_atenciones|floatformat:0 }} %{% else %}—{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr class="total">
+          <td>Total {{ anio_sel|unlocalize }}</td>
+          <td class="num">{{ total.capacidad_instalada }}</td>
+          <td class="num">{{ total.meta_atenciones }}</td>
+          <td class="num">{{ total.atenciones_realizadas }}</td>
+          <td class="num">{% if total.cumpl_atenciones is not None %}{{ total.cumpl_atenciones|floatformat:0 }} %{% else %}—{% endif %}</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
 
-<div class="grid" style="grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem;">
-  <div class="card"><div class="card-body">
-    <h3 style="margin-top:0;">Atenciones: realizadas vs. meta</h3>
+  <div class="card" style="margin-top:1rem;"><div class="card-body">
+    <h3 style="margin-top:0;">Atenciones realizadas vs. meta</h3>
     <div style="position:relative; height:320px;">
       <canvas id="chart-atenciones" role="img" aria-label="Atenciones realizadas y meta por mes, con línea de referencia al 90 %"></canvas>
     </div>
   </div></div>
-  <div class="card"><div class="card-body">
-    <h3 style="margin-top:0;">Facturación: facturado vs. estándar de capacidad ($)</h3>
+</section>
+
+<section class="resumen-seccion" style="margin-top:2rem;">
+  <h2>Dinero</h2>
+  <div class="table-wrap">
+    <table class="data">
+      <thead>
+        <tr>
+          <th>Mes</th>
+          <th class="num">Estándar capacidad</th>
+          <th class="num">Facturado contab.</th>
+          <th class="num">Cumplimiento %</th>
+          <th class="num">Presupuesto {{ anio_sel|unlocalize }}</th>
+          <th class="num">Meta 10 %</th>
+          <th class="num">Presupuesto + meta</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for f in filas %}
+        <tr>
+          <td>{{ f.mes }}</td>
+          <td class="num">$ {{ f.estandar_capacidad|floatformat:0 }}</td>
+          <td class="num">$ {{ f.facturado_contab|floatformat:0 }}</td>
+          <td class="num">{% if f.cumpl_dinero is not None %}{{ f.cumpl_dinero|floatformat:0 }} %{% else %}—{% endif %}</td>
+          <td class="num">$ {{ f.presupuesto|floatformat:0 }}</td>
+          <td class="num">$ {{ f.meta_10|floatformat:0 }}</td>
+          <td class="num">$ {{ f.presupuesto_mas_meta|floatformat:0 }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr class="total">
+          <td>Total {{ anio_sel|unlocalize }}</td>
+          <td class="num">$ {{ total.estandar_capacidad|floatformat:0 }}</td>
+          <td class="num">$ {{ total.facturado_contab|floatformat:0 }}</td>
+          <td class="num">{% if total.cumpl_dinero is not None %}{{ total.cumpl_dinero|floatformat:0 }} %{% else %}—{% endif %}</td>
+          <td class="num">$ {{ total.presupuesto|floatformat:0 }}</td>
+          <td class="num">$ {{ total.meta_10|floatformat:0 }}</td>
+          <td class="num">$ {{ total.presupuesto_mas_meta|floatformat:0 }}</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <div class="card" style="margin-top:1rem;"><div class="card-body">
+    <h3 style="margin-top:0;">Facturado vs. estándar de capacidad ($)</h3>
     <div style="position:relative; height:320px;">
       <canvas id="chart-dinero" role="img" aria-label="Dinero facturado y estándar de capacidad por mes, con línea de referencia al 90 %"></canvas>
     </div>
   </div></div>
-</div>
+</section>
 
 {{ grafica_atenciones|json_script:"data-grafica-atenciones" }}
 {{ grafica_dinero|json_script:"data-grafica-dinero" }}

@@ -44,7 +44,8 @@ def _fila_resumen_anual(unidad, anio: int, mes: int, nombre_mes: str) -> dict:
     proy = proyeccion_dinero(unidad, anio, mes)
     resumen = vm.resumen
 
-    meta = vm.meta_atenciones or 0
+    capacidad_instalada = vm.total_citas_mes  # bruta, antes de novedades
+    meta = vm.meta_atenciones or 0  # ajustada (neta), después de novedades
     realizadas = resumen.atenciones_realizadas if resumen else 0
     cumpl_atenciones = (Decimal(realizadas) / meta * 100) if meta else None
 
@@ -58,6 +59,7 @@ def _fila_resumen_anual(unidad, anio: int, mes: int, nombre_mes: str) -> dict:
 
     return {
         "mes": nombre_mes,
+        "capacidad_instalada": capacidad_instalada,
         "meta_atenciones": meta,
         "atenciones_realizadas": realizadas,
         "cumpl_atenciones": cumpl_atenciones,
@@ -92,6 +94,7 @@ def resumen_anual(request):
     filas = [_fila_resumen_anual(unidad, anio, mes, nombre) for mes, nombre in MESES]
 
     total = {
+        "capacidad_instalada": sum(f["capacidad_instalada"] for f in filas),
         "meta_atenciones": sum(f["meta_atenciones"] for f in filas),
         "atenciones_realizadas": sum(f["atenciones_realizadas"] for f in filas),
         "estandar_capacidad": sum((f["estandar_capacidad"] for f in filas), Decimal("0")),
