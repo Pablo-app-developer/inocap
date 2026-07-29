@@ -1,11 +1,11 @@
-{% load static %}
+{% load static cachebust %}
 <!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}Capacidad Instalada — INO{% endblock %}</title>
-  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+  <link rel="stylesheet" href="{% static_v 'css/app.css' %}">
   <script>
     // Aplica el tema guardado antes de pintar (evita parpadeo).
     (function () {
@@ -15,7 +15,7 @@
       } catch (e) {}
     })();
   </script>
-  <script src="{% static 'js/htmx.min.js' %}" defer></script>
+  <script src="{% static_v 'js/htmx.min.js' %}" defer></script>
 </head>
 <body>
   <header class="navbar">

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load static l10n %}
+{% load static cachebust l10n %}
 {% block title %}Resumen anual · INO{% endblock %}
 
 {% block content %}
@@ -133,7 +133,7 @@
 {{ grafica_atenciones|json_script:"data-grafica-atenciones" }}
 {{ grafica_dinero|json_script:"data-grafica-dinero" }}
 
-<script src="{% static 'js/chart.min.js' %}"></script>
+<script src="{% static_v 'js/chart.min.js' %}"></script>
 <script>
 (function () {
   var datosAtenciones = JSON.parse(document.getElementById('data-grafica-atenciones').textContent);
