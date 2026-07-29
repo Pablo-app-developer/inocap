@@ -14,6 +14,8 @@ servicio `apps.capacidad.services.calculo` y se persisten como snapshot; nunca
 se escriben a mano.
 """
 
+from decimal import Decimal
+
 from django.core.validators import MinValueValidator
 from django.db import models
 
@@ -315,6 +317,13 @@ class ResumenMensual(models.Model):
     valor_facturado = models.DecimalField(max_digits=16, decimal_places=2, default=0)
     presupuesto = models.DecimalField(max_digits=16, decimal_places=2, default=0)
     meta_pct = models.DecimalField(max_digits=5, decimal_places=4, default=0.10)
+
+    # Meta de CUMPLIMIENTO (realizado vs. capacidad instalada, atenciones y $),
+    # la línea de referencia del Resumen anual — distinta de meta_pct (que es
+    # el 10 % que se le suma al presupuesto).
+    meta_cumplimiento_pct = models.DecimalField(
+        "Meta de cumplimiento", max_digits=5, decimal_places=4, default=Decimal("0.90"),
+    )
 
     class Meta:
         verbose_name = "Resumen mensual"

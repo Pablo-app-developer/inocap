@@ -67,5 +67,8 @@ class CapacidadSalaAdmin(admin.ModelAdmin):
 
 @admin.register(ResumenMensual)
 class ResumenMensualAdmin(admin.ModelAdmin):
-    list_display = ("unidad_negocio", "anio", "mes", "meta_atenciones", "atenciones_realizadas")
+    list_display = (
+        "unidad_negocio", "anio", "mes", "meta_atenciones", "atenciones_realizadas",
+        "valor_facturado", "presupuesto", "meta_cumplimiento_pct",
+    )
     list_filter = ("unidad_negocio", "anio")

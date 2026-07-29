@@ -4,13 +4,16 @@ Vistas de proyección monetaria: "Capacidad en $" (por mes) y "Resumen anual"
 """
 
 import datetime
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
+from django.core.exceptions import PermissionDenied
+from django.shortcuts import redirect, render
+from django.urls import reverse
 
 from apps.capacidad import selectors as capacidad_selectors
-from apps.capacidad.models import MESES
+from apps.capacidad.models import MESES, ResumenMensual
 from apps.capacidad.views import _entero, _seleccion_periodo
 from apps.core import accesos
 
@@ -56,6 +59,7 @@ def _fila_resumen_anual(unidad, anio: int, mes: int, nombre_mes: str) -> dict:
     presupuesto = resumen.presupuesto if resumen else Decimal("0")
     meta_pct = resumen.meta_pct if resumen else Decimal("0.10")
     meta_10 = presupuesto * meta_pct
+    meta_cumplimiento_pct = resumen.meta_cumplimiento_pct if resumen else Decimal("0.90")
 
     return {
         "mes": nombre_mes,
@@ -69,6 +73,7 @@ def _fila_resumen_anual(unidad, anio: int, mes: int, nombre_mes: str) -> dict:
         "presupuesto": presupuesto,
         "meta_10": meta_10,
         "presupuesto_mas_meta": presupuesto + meta_10,
+        "meta_cumplimiento_pct": meta_cumplimiento_pct,
     }
 
 
@@ -76,7 +81,8 @@ def _fila_resumen_anual(unidad, anio: int, mes: int, nombre_mes: str) -> dict:
 def resumen_anual(request):
     """Indicador anual por unidad de negocio: tabla + gráficas mensuales
     (atenciones vs meta, facturado vs estándar de capacidad en $), ambas con
-    una línea de referencia al 90 %."""
+    una línea de referencia a la meta de cumplimiento (`meta_cumplimiento_pct`
+    de ResumenMensual, editable en /facturacion-presupuesto/, 90 % por defecto)."""
     unidades = list(accesos.unidades_accesibles(request.user))
     if not unidades:
         return render(
@@ -116,13 +122,17 @@ def resumen_anual(request):
         "labels": [f["mes"] for f in filas],
         "realizadas": [f["atenciones_realizadas"] for f in filas],
         "meta": [f["meta_atenciones"] for f in filas],
-        "meta_90": [round(f["meta_atenciones"] * 0.9) for f in filas],
+        "meta_cumplimiento": [
+            round(f["meta_atenciones"] * f["meta_cumplimiento_pct"]) for f in filas
+        ],
     }
     grafica_dinero = {
         "labels": [f["mes"] for f in filas],
         "facturado": [float(f["facturado_contab"]) for f in filas],
         "estandar": [float(f["estandar_capacidad"]) for f in filas],
-        "meta_90": [float(f["estandar_capacidad"] * Decimal("0.9")) for f in filas],
+        "meta_cumplimiento": [
+            float(f["estandar_capacidad"] * f["meta_cumplimiento_pct"]) for f in filas
+        ],
     }
 
     return render(request, "atenciones/resumen_anual.html", {
@@ -135,4 +145,72 @@ def resumen_anual(request):
         "grafica_atenciones": grafica_atenciones,
         "grafica_dinero": grafica_dinero,
         "seccion": "resumen_anual",
+    })
+
+
+def _decimal(valor, defecto: Decimal) -> Decimal:
+    """Decimal tolerante: '' o inválido -> defecto. Acepta coma decimal."""
+    if valor is None or str(valor).strip() == "":
+        return defecto
+    try:
+        return Decimal(str(valor).strip().replace(",", "."))
+    except InvalidOperation:
+        return defecto
+
+
+@login_required
+def facturacion_presupuesto(request):
+    """Carga manual de Valor Siesa (facturado), presupuestado y meta de
+    cumplimiento, por unidad de negocio y mes — alimenta el Resumen anual."""
+    if not request.user.is_staff:
+        raise PermissionDenied("Solo un administrador puede cargar facturación y presupuesto.")
+
+    unidades = list(accesos.unidades_accesibles(request.user))
+    if not unidades:
+        return render(
+            request, "atenciones/facturacion_presupuesto.html",
+            {"sin_datos": True, "seccion": "facturacion_presupuesto"},
+        )
+
+    anio_defecto = datetime.date.today().year
+    anio = _entero(request.GET.get("anio") or request.POST.get("anio"), anio_defecto)
+
+    if request.method == "POST":
+        for unidad in unidades:
+            for mes, _nombre in MESES:
+                prefijo = f"{unidad.id}_{mes}"
+                ResumenMensual.objects.update_or_create(
+                    unidad_negocio=unidad, anio=anio, mes=mes,
+                    defaults={
+                        "valor_facturado": _decimal(request.POST.get(f"facturado_{prefijo}"), Decimal("0")),
+                        "presupuesto": _decimal(request.POST.get(f"presupuesto_{prefijo}"), Decimal("0")),
+                        "meta_cumplimiento_pct": _decimal(
+                            request.POST.get(f"meta_{prefijo}"), Decimal("90")
+                        ) / Decimal("100"),
+                    },
+                )
+        messages.success(request, f"Facturación y presupuesto de {anio} guardados.")
+        return redirect(f"{reverse('atenciones:facturacion_presupuesto')}?anio={anio}")
+
+    grupos = []
+    for unidad in unidades:
+        resumenes = {
+            r.mes: r for r in ResumenMensual.objects.filter(unidad_negocio=unidad, anio=anio)
+        }
+        filas = []
+        for mes, nombre in MESES:
+            r = resumenes.get(mes)
+            filas.append({
+                "mes": mes,
+                "nombre_mes": nombre,
+                "facturado": r.valor_facturado if r else Decimal("0"),
+                "presupuesto": r.presupuesto if r else Decimal("0"),
+                "meta_pct": (r.meta_cumplimiento_pct * 100) if r else Decimal("90"),
+            })
+        grupos.append({"unidad": unidad, "filas": filas})
+
+    return render(request, "atenciones/facturacion_presupuesto.html", {
+        "grupos": grupos,
+        "anio_sel": anio,
+        "seccion": "facturacion_presupuesto",
     })
