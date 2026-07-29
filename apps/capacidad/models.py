@@ -174,6 +174,12 @@ class CapacidadSala(models.Model):
     def total_sumar(self) -> int:
         return sum(n.citas_afectadas for n in self.novedades.all() if n.signo == "SUMAR")
 
+    @property
+    def ajuste_neto(self) -> int:
+        """Ajuste por sobreatención + novedades (sumar − descontar) en un solo
+        número con signo, para el modo lectura (el detalle va en el tooltip)."""
+        return self.ajuste_sobreatencion + self.total_sumar - self.total_descontar
+
 
 class Signo(models.TextChoices):
     DESCONTAR = "DESCONTAR", "Descontar (−)"

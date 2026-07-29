@@ -74,22 +74,25 @@
 </div>
 
 {% if vm.parametro %}
-  <div class="grid kpis" style="margin-bottom:1rem;">
-    <div class="card kpi-card accent-indigo"><div class="card-body kpi">
-      <div class="label">Total capacidad instalada</div><div class="value">{{ vm.total_citas_mes }}</div>
-    </div></div>
-    <div class="card kpi-card accent-brand"><div class="card-body kpi">
-      <div class="label">Total capacidad ajustada (meta)</div><div class="value accent">{{ vm.total_neto }}</div>
-    </div></div>
-    <div class="card kpi-card accent-teal"><div class="card-body kpi">
-      <div class="label">Atenciones realizadas</div><div class="value">{{ vm.resumen.atenciones_realizadas|default:"—" }}</div>
-    </div></div>
-    <div class="card kpi-card accent-{{ vm.cumplimiento_estado|default:'muted' }}"><div class="card-body kpi">
-      <div class="label">Cumplimiento</div>
-      <div class="value value-{{ vm.cumplimiento_estado }}">
+  <div class="resumen-compacto">
+    <div class="resumen-item">
+      <span class="resumen-label">Capacidad instalada</span>
+      <span class="resumen-valor">{{ vm.total_citas_mes }}</span>
+    </div>
+    <div class="resumen-item destacado">
+      <span class="resumen-label">Capacidad ajustada (meta)</span>
+      <span class="resumen-valor">{{ vm.total_neto }}</span>
+    </div>
+    <div class="resumen-item">
+      <span class="resumen-label">Atenciones realizadas</span>
+      <span class="resumen-valor">{{ vm.resumen.atenciones_realizadas|default:"—" }}</span>
+    </div>
+    <div class="resumen-item cumplimiento-{{ vm.cumplimiento_estado|default:'muted' }}">
+      <span class="resumen-label">Cumplimiento</span>
+      <span class="resumen-valor">
         {% if vm.cumplimiento_pct %}{{ vm.cumplimiento_pct|floatformat:1 }} %{% else %}—{% endif %}
-      </div>
-    </div></div>
+      </span>
+    </div>
   </div>
 
   <div class="info-strip">

@@ -1,48 +1,40 @@
-<tr id="fila-{{ cap.id }}" class="fila-dato{% if fila_actualizada_id == cap.id %} row-updated{% endif %}">
-  <td>
-    {{ cap.sala.nombre }}
-    {% if cap.sala.especialidad %}<span class="badge muted">{{ cap.sala.especialidad }}</span>{% endif %}
-    {% if cap.sala.metodo_calculo == 'POR_DIA_SEMANA' %}
-      <span class="badge brand" tabindex="0"
-            title="Lun {{ cap.citas_lun }} · Mar {{ cap.citas_mar }} · Mié {{ cap.citas_mie }} · Jue {{ cap.citas_jue }} · Vie {{ cap.citas_vie }} · Sáb {{ cap.citas_sab }}{% if cap.sabados_alternos %} (sábado de por medio){% endif %} · Dom {{ cap.citas_dom }}">
-        {{ cap.citas_semana }} citas/sem
+<div id="fila-{{ cap.id }}" class="sala-row{% if fila_actualizada_id == cap.id %} row-updated{% endif %}">
+  <div class="sala-row-main">
+    <div class="sala-info">
+      <span class="sala-nombre">{{ cap.sala.nombre }}</span>
+      {% if cap.sala.especialidad %}<span class="badge muted">{{ cap.sala.especialidad }}</span>{% endif %}
+      <span class="badge brand" tabindex="0" title="{{ cap.sala.metodo_ayuda }}">
+        {{ cap.sala.get_metodo_calculo_display }}
       </span>
-    {% endif %}
-  </td>
-  <td>
-    <select class="metodo-select" title="{{ cap.sala.metodo_ayuda }}"
-            aria-label="Método de cálculo de {{ cap.sala.nombre }}"
-            hx-post="{% url 'capacidad:cambiar_metodo' cap.id %}"
-            hx-target="#tabla-capacidad" hx-swap="innerHTML"
-            hx-trigger="change" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-            name="metodo">
-      <option value="POR_HORAS" {% if cap.sala.metodo_calculo == 'POR_HORAS' %}selected{% endif %}>Por horas</option>
-      <option value="POR_DIA_SEMANA" {% if cap.sala.metodo_calculo == 'POR_DIA_SEMANA' %}selected{% endif %}>Por día de la semana</option>
-      <option value="PERSONALIZADO" {% if cap.sala.metodo_calculo == 'PERSONALIZADO' %}selected{% endif %}>Personalizado</option>
-    </select>
-  </td>
-  {% if cap.sala.metodo_calculo == 'POR_DIA_SEMANA' %}
-    <td class="num" title="No aplica: se calcula por citas por día de la semana">—</td>
-    <td class="num" title="No aplica: se calcula por citas por día de la semana">—</td>
-    <td class="num" title="No aplica: se calcula por citas por día de la semana">—</td>
-    <td class="num" title="No aplica: se calcula por citas por día de la semana">—</td>
-    <td class="num" title="No aplica: se calcula por citas por día de la semana">—</td>
-  {% else %}
-    <td class="num">{{ cap.horas_dia_lav|floatformat:"-2" }}</td>
-    <td class="num">{{ cap.horas_dia_sabado|floatformat:"-2" }}</td>
-    <td class="num">{{ cap.tiempo_estandar_horas|floatformat:"-2" }}</td>
-    <td class="num">{{ cap.citas_dia_lav }}</td>
-    <td class="num">{{ cap.citas_dia_sabado }}</td>
-  {% endif %}
-  <td class="num col-hl">{{ cap.citas_mes }}</td>
-  <td class="num">{{ cap.ajuste_sobreatencion }}</td>
-  <td class="num">{{ cap.total_descontar }}</td>
-  <td class="num">{{ cap.total_sumar }}</td>
-  <td class="num col-hl"><strong>{{ cap.neto_capacidad_ajustada }}</strong></td>
-  <td>
-    <button class="btn" type="button"
-            hx-get="{% url 'capacidad:editar_capacidad' cap.id %}"
-            hx-target="#fila-{{ cap.id }}"
-            hx-swap="outerHTML">Editar</button>
-  </td>
-</tr>
+      {% if cap.sala.metodo_calculo == 'POR_DIA_SEMANA' %}
+        <span class="badge muted" tabindex="0"
+              title="Lun {{ cap.citas_lun }} · Mar {{ cap.citas_mar }} · Mié {{ cap.citas_mie }} · Jue {{ cap.citas_jue }} · Vie {{ cap.citas_vie }} · Sáb {{ cap.citas_sab }}{% if cap.sabados_alternos %} (sábado de por medio){% endif %} · Dom {{ cap.citas_dom }}">
+          {{ cap.citas_semana }} citas/sem
+        </span>
+      {% endif %}
+    </div>
+
+    <div class="sala-cifras">
+      <div class="cifra">
+        <span class="cifra-label">Capacidad instalada</span>
+        <span class="cifra-valor">{{ cap.citas_mes }}</span>
+      </div>
+      <div class="cifra ajuste{% if cap.ajuste_neto %} con-ajuste{% endif %}"
+           title="Ajuste por sobreatención: {{ cap.ajuste_sobreatencion }} · Novedades: −{{ cap.total_descontar }} / +{{ cap.total_sumar }}">
+        <span class="cifra-label">Ajustes</span>
+        <span class="cifra-valor">{% if cap.ajuste_neto > 0 %}+{% endif %}{{ cap.ajuste_neto }}</span>
+      </div>
+      <div class="cifra destacada">
+        <span class="cifra-label">Capacidad ajustada</span>
+        <span class="cifra-valor">{{ cap.neto_capacidad_ajustada }}</span>
+      </div>
+    </div>
+
+    <div class="sala-acciones">
+      <button class="btn" type="button"
+              hx-get="{% url 'capacidad:editar_capacidad' cap.id %}"
+              hx-target="#fila-{{ cap.id }}"
+              hx-swap="outerHTML">Editar</button>
+    </div>
+  </div>
+</div>

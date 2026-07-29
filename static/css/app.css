@@ -476,3 +476,107 @@ table.data td .badge[title] { cursor: help; }
   .container { padding: 1rem .9rem; }
   .navbar { flex-wrap: wrap; }
 }
+
+/* ========================================================================
+   Capacidad instalada mensual — módulo operativo (no un dashboard):
+   bloques por sede colapsables, lectura vs edición separadas, KPIs
+   secundarios. Sustituye la tabla densa por una lista de filas-tarjeta.
+   ======================================================================== */
+
+/* Resumen compacto (antes 4 kpi-card grandes): secundario, no compite
+   visualmente con la lista de salas ni con el panel de edición. */
+.resumen-compacto {
+  display: flex; flex-wrap: wrap;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--surface); margin: 0 0 1rem; overflow: hidden;
+}
+.resumen-item { flex: 1 1 150px; padding: .5rem .9rem; border-right: 1px solid var(--border); }
+.resumen-item:last-child { border-right: none; }
+.resumen-label {
+  display: block; font-size: .68rem; color: var(--muted);
+  text-transform: uppercase; letter-spacing: .03em;
+}
+.resumen-valor {
+  display: block; font-size: 1.15rem; font-weight: 700;
+  font-variant-numeric: tabular-nums; margin-top: .1rem;
+}
+.resumen-item.destacado .resumen-valor { color: var(--brand-strong); }
+.resumen-item.cumplimiento-ok .resumen-valor   { color: var(--success); }
+.resumen-item.cumplimiento-warn .resumen-valor { color: var(--warning); }
+.resumen-item.cumplimiento-bad .resumen-valor  { color: var(--danger); }
+@media (max-width: 700px) {
+  .resumen-item { flex: 1 1 100%; border-right: none; border-bottom: 1px solid var(--border); }
+  .resumen-item:last-child { border-bottom: none; }
+}
+
+/* Sede como card colapsable (reemplaza las secciones de tabla) */
+.sede-card {
+  margin: 0 0 .9rem; border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--surface); overflow: hidden;
+}
+.sede-card > summary {
+  cursor: pointer; list-style: none; display: flex; align-items: center;
+  gap: .7rem; flex-wrap: wrap; padding: .65rem 1rem;
+  background: color-mix(in srgb, var(--brand) 8%, var(--surface));
+  border-left: 3px solid var(--brand);
+}
+.sede-card.es-municipal > summary { border-left-color: var(--accent); }
+.sede-card > summary::-webkit-details-marker { display: none; }
+.sede-card > summary::before { content: "▸"; color: var(--muted); }
+.sede-card[open] > summary::before { content: "▾"; }
+.sede-card-nombre {
+  font-weight: 800; text-transform: uppercase; letter-spacing: .04em;
+  font-size: .85rem; color: var(--brand-strong);
+}
+.sede-card.es-municipal .sede-card-nombre { color: var(--accent); }
+.sede-card-cifras { margin-left: auto; display: flex; gap: 1.1rem; font-size: .82rem; color: var(--muted); }
+.sede-card-cifras strong { color: var(--text); font-variant-numeric: tabular-nums; }
+.sede-card-body { padding: .8rem 1rem 1rem; }
+
+/* Lista de salas: filas-tarjeta en vez de <table> (no debe leerse como Excel) */
+.sala-lista { display: flex; flex-direction: column; gap: .5rem; }
+.sala-row {
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--surface); transition: background var(--transition), border-color var(--transition);
+}
+.sala-row:hover { border-color: var(--brand); }
+.sala-row-main { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; padding: .6rem .9rem; }
+.sala-info { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; min-width: 160px; }
+.sala-nombre { font-weight: 700; }
+.sala-cifras { display: flex; gap: 1.3rem; margin-left: auto; flex-wrap: wrap; }
+.cifra { display: flex; flex-direction: column; align-items: flex-end; min-width: 84px; }
+.cifra-label { font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: .02em; }
+.cifra-valor { font-variant-numeric: tabular-nums; font-weight: 700; }
+.cifra.destacada .cifra-valor { color: var(--brand-strong); font-size: 1.05rem; }
+.cifra.ajuste .cifra-valor { color: var(--muted); font-weight: 600; }
+.cifra.ajuste.con-ajuste .cifra-valor { color: var(--warning); }
+.sala-acciones { display: flex; gap: .4rem; }
+
+/* Modo edición: panel visualmente diferenciado del modo lectura (nunca
+   ambos a la vez), para no editar por accidente. */
+.sala-row-edit {
+  border-color: var(--brand); box-shadow: 0 0 0 1px var(--brand);
+  background: color-mix(in srgb, var(--brand) 5%, var(--surface));
+}
+.sala-row-edit-head { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; padding: .7rem .9rem .2rem; }
+.badge.editando { background: var(--brand); color: #fff; }
+.sala-edit-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: .7rem; padding: .3rem .9rem .5rem;
+}
+.sala-edit-grid .campo { display: flex; flex-direction: column; gap: .25rem; }
+.sala-edit-grid .campo span { font-size: .74rem; color: var(--muted); font-weight: 600; }
+.sala-edit-grid .campo-full { grid-column: 1 / -1; }
+.sala-edit-preview { margin: 0; padding: 0 .9rem .3rem; font-size: .78rem; color: var(--muted); }
+.sala-edit-acciones { display: flex; gap: .5rem; padding: .5rem .9rem .8rem; }
+
+/* Fila "agregar sala": misma altura de fila, borde discontinuo para
+   distinguirla de una fila de datos real. */
+.sala-row-agregar { border-style: dashed; }
+.sala-row-agregar .btn { width: 100%; justify-content: center; }
+
+.sala-row.row-updated { animation: flash-borde 1100ms ease; }
+@keyframes flash-borde {
+  from { box-shadow: 0 0 0 2px var(--accent); }
+  to   { box-shadow: 0 0 0 0 transparent; }
+}

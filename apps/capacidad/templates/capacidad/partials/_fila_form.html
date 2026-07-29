@@ -1,30 +1,49 @@
-<tr id="fila-{{ cap.id }}" style="background: var(--surface-2);">
-  <td><strong>{{ cap.sala.nombre }}</strong></td>
-  <td><span class="badge brand" title="{{ cap.sala.metodo_ayuda }}" tabindex="0">{{ cap.sala.get_metodo_calculo_display }}</span></td>
-  <td class="num">{{ form.horas_dia_lav }}</td>
-  <td class="num">{{ form.horas_dia_sabado }}</td>
-  <td class="num">{{ form.tiempo_estandar_horas }}</td>
-  <td class="num" colspan="3" style="color:var(--muted); font-size:.8rem;">Se recalcula al guardar</td>
-  <td class="num">{{ form.ajuste_sobreatencion }}</td>
-  <td class="num" colspan="2">{{ form.observaciones }}</td>
-  <td></td>
-  <td style="white-space:nowrap;">
-    <button class="btn primary" type="button"
-            hx-post="{% url 'capacidad:editar_capacidad' cap.id %}"
-            hx-include="#fila-{{ cap.id }} [name]"
-            hx-target="#tabla-capacidad"
-            hx-swap="innerHTML"
-            hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>Guardar</button>
-    <button class="btn" type="button"
-            hx-get="{% url 'capacidad:fila_capacidad' cap.id %}"
-            hx-target="#fila-{{ cap.id }}"
-            hx-swap="outerHTML">Cancelar</button>
-  </td>
-</tr>
-{% if form.errors %}
-<tr id="fila-{{ cap.id }}-err">
-  <td colspan="13" style="color:var(--danger); font-size:.82rem;">
-    {% for field, errs in form.errors.items %}{{ field }}: {{ errs|join:", " }} {% endfor %}
-  </td>
-</tr>
-{% endif %}
+<div id="fila-{{ cap.id }}" class="sala-row sala-row-edit">
+  <div id="panel-{{ cap.id }}">
+    <div class="sala-row-edit-head">
+      <span class="sala-nombre">{{ cap.sala.nombre }}</span>
+      <span class="badge editando">Editando</span>
+      <select class="metodo-select" title="{{ cap.sala.metodo_ayuda }}"
+              aria-label="Método de cálculo de {{ cap.sala.nombre }}"
+              hx-post="{% url 'capacidad:cambiar_metodo' cap.id %}"
+              hx-target="#tabla-capacidad" hx-swap="innerHTML"
+              hx-trigger="change" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+              name="metodo">
+        <option value="POR_HORAS" {% if cap.sala.metodo_calculo == 'POR_HORAS' %}selected{% endif %}>Por horas</option>
+        <option value="POR_DIA_SEMANA" {% if cap.sala.metodo_calculo == 'POR_DIA_SEMANA' %}selected{% endif %}>Por día de la semana</option>
+        <option value="PERSONALIZADO" {% if cap.sala.metodo_calculo == 'PERSONALIZADO' %}selected{% endif %}>Personalizado</option>
+      </select>
+    </div>
+
+    <div class="sala-edit-grid">
+      <label class="campo"><span>Horas/día L–V</span>{{ form.horas_dia_lav }}</label>
+      <label class="campo"><span>Horas/día sáb.</span>{{ form.horas_dia_sabado }}</label>
+      <label class="campo"><span>Tiempo estándar (h)</span>{{ form.tiempo_estandar_horas }}</label>
+      <label class="campo"><span>Ajuste sobreatención</span>{{ form.ajuste_sobreatencion }}</label>
+      <label class="campo campo-full"><span>Observaciones</span>{{ form.observaciones }}</label>
+    </div>
+    <p class="sala-edit-preview">
+      Con los valores actuales: {{ cap.citas_dia_lav }} citas/día L–V ·
+      {{ cap.citas_dia_sabado }} citas/día sábado — se recalcula al guardar.
+    </p>
+
+    {% if form.errors %}
+      <div style="color:var(--danger); font-size:.82rem; padding:0 .9rem .5rem;">
+        {% for field, errs in form.errors.items %}{{ field }}: {{ errs|join:", " }} {% endfor %}
+      </div>
+    {% endif %}
+
+    <div class="sala-edit-acciones">
+      <button class="btn primary" type="button"
+              hx-post="{% url 'capacidad:editar_capacidad' cap.id %}"
+              hx-include="#panel-{{ cap.id }} [name]"
+              hx-target="#tabla-capacidad"
+              hx-swap="innerHTML"
+              hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>Guardar</button>
+      <button class="btn" type="button"
+              hx-get="{% url 'capacidad:fila_capacidad' cap.id %}"
+              hx-target="#fila-{{ cap.id }}"
+              hx-swap="outerHTML">Cancelar</button>
+    </div>
+  </div>
+</div>

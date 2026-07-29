@@ -1,21 +1,30 @@
 {% load l10n %}
-<tr id="agregar-sala-{{ sede.id }}" style="background: var(--surface-2);">
-  <td>
-    {{ form.nombre }}
+<div id="agregar-sala-{{ sede.id }}" class="sala-row sala-row-edit">
+  <div class="sala-row-edit-head">
+    <span class="sala-nombre">Nueva sala en {{ sede.nombre }}</span>
+    <span class="badge editando">Creando</span>
+  </div>
+  <div class="sala-edit-grid">
     <input type="hidden" name="unidad" value="{{ unidad.id }}">
     <input type="hidden" name="anio" value="{{ anio|unlocalize }}">
     <input type="hidden" name="mes" value="{{ mes }}">
-    <div style="margin-top:.3rem;">{{ form.especialidad }}</div>
-  </td>
-  <td>{{ form.metodo_calculo }}</td>
-  <td class="num" colspan="9" style="color:var(--muted); font-size:.8rem;">
-    Entra en cero — la editas después de guardar.
-    <label style="margin-left:.5rem; font-weight:normal;">
-      {{ form.atiende_sabados }} Atiende sábados
+    <label class="campo"><span>Nombre</span>{{ form.nombre }}</label>
+    <label class="campo"><span>Especialidad (opcional)</span>{{ form.especialidad }}</label>
+    <label class="campo"><span>Método de cálculo</span>{{ form.metodo_calculo }}</label>
+    <label class="campo" style="flex-direction:row; align-items:center; gap:.4rem; margin-top:1.3rem;">
+      {{ form.atiende_sabados }}
+      <span>Atiende sábados</span>
     </label>
-  </td>
-  <td></td>
-  <td style="white-space:nowrap;">
+  </div>
+  <p class="sala-edit-preview">Entra con capacidad en cero — la completas después con «Editar».</p>
+
+  {% if form.errors %}
+    <div style="color:var(--danger); font-size:.82rem; padding:0 .9rem .5rem;">
+      {% for field, errs in form.errors.items %}{{ field }}: {{ errs|join:", " }} {% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="sala-edit-acciones">
     <button class="btn primary" type="button"
             hx-post="{% url 'capacidad:agregar_sala' sede.id %}"
             hx-include="#agregar-sala-{{ sede.id }} [name]"
@@ -24,12 +33,5 @@
     <button class="btn" type="button"
             hx-get="{% url 'capacidad:cancelar_agregar_sala' sede.id %}?unidad={{ unidad.id }}&anio={{ anio|unlocalize }}&mes={{ mes }}"
             hx-target="#agregar-sala-{{ sede.id }}" hx-swap="outerHTML">Cancelar</button>
-  </td>
-</tr>
-{% if form.errors %}
-<tr id="agregar-sala-{{ sede.id }}-err">
-  <td colspan="13" style="color:var(--danger); font-size:.82rem;">
-    {% for field, errs in form.errors.items %}{{ field }}: {{ errs|join:", " }} {% endfor %}
-  </td>
-</tr>
-{% endif %}
+  </div>
+</div>

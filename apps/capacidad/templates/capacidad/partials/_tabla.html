@@ -14,56 +14,33 @@
       <span class="info-item"><strong>{{ seccion.subtotal_neto }}</strong> capacidad ajustada</span>
     </span>
   </div>
-  <div class="table-wrap">
-    <table class="data">
-      <thead>
-        <tr>
-          <th>Sala</th>
-          <th>Método</th>
-          <th class="num">Horas L–V</th>
-          <th class="num">Horas Sáb</th>
-          <th class="num">T. Est.</th>
-          <th class="num">Citas/día L–V</th>
-          <th class="num">Citas/día Sáb</th>
-          <th class="num col-hl" title="Capacidad instalada bruta del mes (antes de novedades)">Total capacidad instalada</th>
-          <th class="num">Ajuste</th>
-          <th class="num">Nov. −</th>
-          <th class="num">Nov. +</th>
-          <th class="num col-hl" title="Total capacidad ajustada = capacidad instalada + ajuste − novedades a descontar + novedades a sumar">Total capacidad ajustada</th>
-          <th>Acción</th>
-        </tr>
-      </thead>
-      {% for g in seccion.grupos %}
-      <tbody>
-        <tr class="sede-head">
-          <td colspan="13">
-            {{ g.sede.nombre }}
-            {% if g.sede.es_municipal %}<span class="badge muted">municipal</span>{% endif %}
-          </td>
-        </tr>
+
+  {% for g in seccion.grupos %}
+  <details class="sede-card {% if g.sede.es_municipal %}es-municipal{% endif %}" open>
+    <summary>
+      <span class="sede-card-nombre">{{ g.sede.nombre }}</span>
+      {% if g.sede.es_municipal %}<span class="badge muted">municipal</span>{% endif %}
+      <span class="sede-card-cifras">
+        <span>{{ g.filas|length }} sala{{ g.filas|length|pluralize }}</span>
+        <span>Capacidad instalada <strong>{{ g.subtotal_citas_mes }}</strong></span>
+        <span>Capacidad ajustada <strong>{{ g.subtotal_neto }}</strong></span>
+      </span>
+    </summary>
+    <div class="sede-card-body">
+      <div class="sala-lista">
         {% for cap in g.filas %}
           {% include "capacidad/partials/_fila.html" %}
         {% endfor %}
         {% include "capacidad/partials/_fila_agregar_sala_boton.html" with sede=g.sede unidad=vm.unidad anio=vm.anio mes=vm.mes %}
-        <tr class="total">
-          <td colspan="7">Subtotal {{ g.sede.nombre }}</td>
-          <td class="num col-hl">{{ g.subtotal_citas_mes }}</td>
-          <td class="num" colspan="3"></td>
-          <td class="num col-hl">{{ g.subtotal_neto }}</td>
-          <td></td>
-        </tr>
-      </tbody>
-      {% endfor %}
-      <tbody>
-        <tr class="total seccion-total">
-          <td colspan="7">Subtotal {{ seccion.titulo|lower }}</td>
-          <td class="num col-hl">{{ seccion.subtotal_citas_mes }}</td>
-          <td class="num" colspan="3"></td>
-          <td class="num col-hl">{{ seccion.subtotal_neto }}</td>
-          <td></td>
-        </tr>
-      </tbody>
-    </table>
+      </div>
+    </div>
+  </details>
+  {% endfor %}
+
+  <div class="gran-total-strip" style="margin-top:.5rem;">
+    <span class="gt-label">Subtotal {{ seccion.titulo|lower }}</span>
+    <span class="gt-item"><strong>{{ seccion.subtotal_citas_mes }}</strong> capacidad instalada</span>
+    <span class="gt-item"><strong>{{ seccion.subtotal_neto }}</strong> capacidad ajustada</span>
   </div>
 </section>
 {% endfor %}
