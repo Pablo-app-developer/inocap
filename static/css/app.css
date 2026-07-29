@@ -226,31 +226,22 @@ a:hover { text-decoration: underline; }
 .crear-mes-desc { margin: 0 0 .75rem; color: var(--muted); font-size: .85rem; }
 
 /* --- Módulo de novedades --- */
-.estado-mes {
-  display: flex; align-items: center; gap: .7rem; flex-wrap: wrap;
-  padding: .55rem .9rem; margin: 0 0 1.1rem;
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--radius-sm); font-size: .85rem;
+/* "Estado del mes" como card, hermana de "Consultar período" (mismo grid
+   .periodo-crear-grid), en vez de una franja aparte debajo del filtro. */
+.estado-mes-card.abierto { border-left: 3px solid var(--success); }
+.estado-mes-card.cerrado { border-left: 3px solid var(--muted); }
+.estado-mes-card h3 {
+  font-size: .85rem; text-transform: uppercase; letter-spacing: .05em;
+  margin-bottom: .35rem;
 }
-.estado-mes.abierto { border-left: 3px solid var(--success); }
-.estado-mes.cerrado { border-left: 3px solid var(--muted); }
+.estado-mes-card.abierto h3 { color: var(--success); }
+.estado-mes-card.cerrado h3 { color: var(--muted); }
+.estado-mes-contenido { display: flex; align-items: center; gap: .7rem; flex-wrap: wrap; font-size: .85rem; }
 .estado-mes-texto { color: var(--muted); }
 
-.nov-seccion {
-  font-size: .78rem; font-weight: 800; text-transform: uppercase;
-  letter-spacing: .06em; color: var(--text); margin: 1.8rem 0 .3rem;
-  padding-top: 1rem; border-top: 2px solid var(--border);
-}
-.nov-seccion:first-child { margin-top: 0; padding-top: 0; border-top: none; }
-.nov-sede {
-  font-size: .9rem; font-weight: 800; text-transform: uppercase;
-  letter-spacing: .05em; color: var(--brand-strong); margin: 1rem 0 .6rem;
-}
-.nov-card { margin-bottom: .9rem; }
-.nov-head { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; margin-bottom: .6rem; }
-.nov-cifras { margin-left: auto; display: flex; gap: 1rem; flex-wrap: wrap; font-size: .84rem; color: var(--muted); }
-.nov-cifra strong { color: var(--text); font-variant-numeric: tabular-nums; }
-.nov-cifra.total strong { color: var(--brand-strong); font-size: 1.05rem; }
+/* Cada sala es un .sala-row (mismo componente de Capacidad instalada
+   mensual): cabecera con cifras + cuerpo propio para la tabla/formulario. */
+.nov-sala-body { padding: 0 .9rem .8rem; }
 .nov-vacio { color: var(--muted); font-size: .85rem; margin: .2rem 0 .7rem; }
 
 /* Tabla de novedades: table-layout AUTO (el navegador alinea cada columna
@@ -270,7 +261,10 @@ tr.nov-fila-edicion td { background: color-mix(in srgb, var(--accent) 8%, var(--
 
 .nov-form {
   display: flex; gap: .4rem; flex-wrap: wrap; align-items: center;
-  font-size: .82rem; width: 100%;
+  font-size: .82rem; width: 100%; margin-top: .5rem;
+  padding: .55rem .7rem; border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--brand) 5%, var(--surface));
+  border: 1px solid var(--border);
 }
 .nov-form select, .nov-form input { padding: .32rem .4rem; font-size: .82rem; }
 .nov-form select[name="tipo"] { max-width: 12rem; }

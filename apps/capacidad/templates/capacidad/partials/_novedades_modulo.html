@@ -2,86 +2,121 @@
   <div class="flash error" role="alert">{{ error }}</div>
 {% endif %}
 
-<div class="info-strip nov-totales">
-  <span class="info-item">Capacidad instalada <strong>{{ vm.total_capacidad_total }}</strong></span>
-  <span class="info-item">Novedades − <strong>{{ vm.total_descontar }}</strong></span>
-  <span class="info-item">Novedades + <strong>{{ vm.total_sumar }}</strong></span>
-  <span class="info-item">Total capacidad ajustada <strong>{{ vm.total_neto }}</strong></span>
+<div class="resumen-compacto">
+  <div class="resumen-item">
+    <span class="resumen-label">Capacidad instalada</span>
+    <span class="resumen-valor">{{ vm.total_capacidad_total }}</span>
+  </div>
+  <div class="resumen-item">
+    <span class="resumen-label">Novedades a descontar</span>
+    <span class="resumen-valor">−{{ vm.total_descontar }}</span>
+  </div>
+  <div class="resumen-item">
+    <span class="resumen-label">Novedades a sumar</span>
+    <span class="resumen-valor">+{{ vm.total_sumar }}</span>
+  </div>
+  <div class="resumen-item destacado">
+    <span class="resumen-label">Capacidad ajustada</span>
+    <span class="resumen-valor">{{ vm.total_neto }}</span>
+  </div>
 </div>
 
 {% for seccion in vm.secciones %}
-  <h2 class="nov-seccion">{{ seccion.titulo }}</h2>
+<section class="seccion-sedes {% if seccion.grupos.0.sede.es_municipal %}es-municipal{% endif %}">
+  <div class="seccion-titulo">
+    <h2>{{ seccion.titulo }}</h2>
+    <span class="seccion-resumen">
+      <span class="info-item"><strong>{{ seccion.subtotal_citas_mes }}</strong> capacidad</span>
+      <span class="info-item"><strong>{{ seccion.subtotal_neto }}</strong> capacidad ajustada</span>
+    </span>
+  </div>
 
   {% for g in seccion.grupos %}
-  <h3 class="nov-sede">
-    {{ g.sede.nombre }}
-    {% if g.sede.es_municipal %}<span class="badge muted">municipal</span>{% endif %}
-  </h3>
+  <details class="sede-card {% if g.sede.es_municipal %}es-municipal{% endif %}" open>
+    <summary>
+      <span class="sede-card-nombre">{{ g.sede.nombre }}</span>
+      {% if g.sede.es_municipal %}<span class="badge muted">municipal</span>{% endif %}
+      <span class="sede-card-cifras">
+        <span>{{ g.filas|length }} sala{{ g.filas|length|pluralize }}</span>
+        <span>Capacidad ajustada <strong>{{ g.subtotal_neto }}</strong></span>
+      </span>
+    </summary>
+    <div class="sede-card-body">
+      <div class="sala-lista">
+        {% for cap in g.filas %}
+        <div class="sala-row nov-sala">
+          <div class="sala-row-main">
+            <div class="sala-info">
+              <span class="sala-nombre">{{ cap.sala.nombre }}</span>
+              {% if cap.sala.especialidad %}<span class="badge muted">{{ cap.sala.especialidad }}</span>{% endif %}
+            </div>
+            <div class="sala-cifras">
+              <div class="cifra" title="Capacidad instalada del mes (con ajuste), calculada en Capacidad instalada mensual">
+                <span class="cifra-label">Capacidad instalada</span>
+                <span class="cifra-valor">{{ cap.citas_mes_total }}</span>
+              </div>
+              <div class="cifra ajuste{% if cap.total_descontar or cap.total_sumar %} con-ajuste{% endif %}">
+                <span class="cifra-label">Novedades</span>
+                <span class="cifra-valor">−{{ cap.total_descontar }} / +{{ cap.total_sumar }}</span>
+              </div>
+              <div class="cifra destacada">
+                <span class="cifra-label">Total ajustado</span>
+                <span class="cifra-valor">{{ cap.neto_capacidad_ajustada }}</span>
+              </div>
+            </div>
+          </div>
 
-  {% for cap in g.filas %}
-  <div class="card nov-card">
-    <div class="card-body">
-      <div class="nov-head">
-        <strong>{{ cap.sala.nombre }}</strong>
-        {% if cap.sala.especialidad %}<span class="badge muted">{{ cap.sala.especialidad }}</span>{% endif %}
-        <span class="nov-cifras">
-          <span class="nov-cifra" title="Capacidad instalada del mes (con ajuste), calculada en Capacidad instalada mensual">
-            Capacidad instalada <strong>{{ cap.citas_mes_total }}</strong>
-          </span>
-          <span class="nov-cifra">− <strong>{{ cap.total_descontar }}</strong></span>
-          <span class="nov-cifra">+ <strong>{{ cap.total_sumar }}</strong></span>
-          <span class="nov-cifra total" title="Capacidad instalada − novedades a descontar + novedades a sumar">
-            Total ajustado <strong>{{ cap.neto_capacidad_ajustada }}</strong>
-          </span>
-        </span>
-      </div>
+          <div class="nov-sala-body">
+            {% if cap.novedades.all %}
+              <div class="table-wrap nov-tabla-wrap">
+                <table class="data nov-tabla">
+                  <thead>
+                    <tr>
+                      <th>Tipo</th><th>Signo</th><th class="num">Citas</th>
+                      <th>Fecha</th><th>Descripción</th>{% if abierto %}<th>Acción</th>{% endif %}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for n in cap.novedades.all %}
+                      {% include "capacidad/partials/_novedad_fila.html" %}
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            {% else %}
+              <p class="nov-vacio">Sin novedades registradas este mes.</p>
+            {% endif %}
 
-      {% if cap.novedades.all %}
-        <div class="table-wrap nov-tabla-wrap">
-          <table class="data nov-tabla">
-            <thead>
-              <tr>
-                <th>Tipo</th><th>Signo</th><th class="num">Citas</th>
-                <th>Fecha</th><th>Descripción</th>{% if abierto %}<th>Acción</th>{% endif %}
-              </tr>
-            </thead>
-            <tbody>
-              {% for n in cap.novedades.all %}
-                {% include "capacidad/partials/_novedad_fila.html" %}
-              {% endfor %}
-            </tbody>
-          </table>
+            {% if abierto %}
+            <div class="nov-form" id="nov-form-{{ cap.id }}">
+              <select name="tipo" aria-label="Tipo de novedad">
+                {% for t in tipos %}
+                  <option value="{{ t.codigo }}" {% if t.ayuda %}title="{{ t.ayuda }}"{% endif %}>{{ t.nombre }}</option>
+                {% endfor %}
+              </select>
+              <select name="signo" aria-label="Signo">
+                {% for valor, etiqueta in signos %}
+                  <option value="{{ valor }}">{{ etiqueta }}</option>
+                {% endfor %}
+              </select>
+              <input type="number" name="citas_afectadas" min="1" step="1" value="1"
+                     aria-label="Citas afectadas">
+              <input type="date" name="fecha" aria-label="Fecha (opcional)">
+              <input type="text" name="descripcion" placeholder="Descripción (opcional)"
+                     aria-label="Descripción">
+              <button class="btn primary" type="button"
+                      hx-post="{% url 'capacidad:agregar_novedad' cap.id %}"
+                      hx-include="#nov-form-{{ cap.id }} [name]"
+                      hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                      hx-target="#modulo-novedades" hx-swap="innerHTML">Agregar</button>
+            </div>
+            {% endif %}
+          </div>
         </div>
-      {% else %}
-        <p class="nov-vacio">Sin novedades registradas este mes.</p>
-      {% endif %}
-
-      {% if abierto %}
-      <div class="nov-form" id="nov-form-{{ cap.id }}">
-        <select name="tipo" aria-label="Tipo de novedad">
-          {% for t in tipos %}
-            <option value="{{ t.codigo }}" {% if t.ayuda %}title="{{ t.ayuda }}"{% endif %}>{{ t.nombre }}</option>
-          {% endfor %}
-        </select>
-        <select name="signo" aria-label="Signo">
-          {% for valor, etiqueta in signos %}
-            <option value="{{ valor }}">{{ etiqueta }}</option>
-          {% endfor %}
-        </select>
-        <input type="number" name="citas_afectadas" min="1" step="1" value="1"
-               aria-label="Citas afectadas">
-        <input type="date" name="fecha" aria-label="Fecha (opcional)">
-        <input type="text" name="descripcion" placeholder="Descripción (opcional)"
-               aria-label="Descripción">
-        <button class="btn primary" type="button"
-                hx-post="{% url 'capacidad:agregar_novedad' cap.id %}"
-                hx-include="#nov-form-{{ cap.id }} [name]"
-                hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-                hx-target="#modulo-novedades" hx-swap="innerHTML">Agregar</button>
+        {% endfor %}
       </div>
-      {% endif %}
     </div>
-  </div>
+  </details>
   {% endfor %}
-  {% endfor %}
+</section>
 {% endfor %}
