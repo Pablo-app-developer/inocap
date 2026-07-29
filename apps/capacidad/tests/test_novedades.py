@@ -124,7 +124,7 @@ def test_editar_novedad_mes_abierto_recalcula(client, escenario, usuario):
     n.refresh_from_db()
     cap.refresh_from_db()
     assert n.citas_afectadas == 9
-    assert n.tipo == "PERMISO"
+    assert n.tipo.codigo == "PERMISO"
     assert cap.neto_capacidad_ajustada == 504 - 9
 
 

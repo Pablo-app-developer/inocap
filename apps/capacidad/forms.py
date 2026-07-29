@@ -2,11 +2,20 @@ from django import forms
 
 from apps.core.models import Sala
 
-from .models import CapacidadSala, Novedad
+from .models import CapacidadSala, Novedad, TipoNovedad
 
 
 class NovedadForm(forms.ModelForm):
-    """Registro de una novedad del mes (módulo de novedades)."""
+    """Registro de una novedad del mes (módulo de novedades).
+
+    `tipo` se referencia por `codigo` (no por pk) para que el <select> armado
+    a mano en `_novedades_modulo.html` pueda seguir mandando el código estable
+    (ej. "INCAPACIDAD") en vez de tener que conocer el id de fila del catálogo.
+    """
+
+    tipo = forms.ModelChoiceField(
+        queryset=TipoNovedad.objects.filter(activo=True), to_field_name="codigo",
+    )
 
     class Meta:
         model = Novedad

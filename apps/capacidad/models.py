@@ -178,22 +178,34 @@ class Signo(models.TextChoices):
     SUMAR = "SUMAR", "Sumar (+)"
 
 
-class TipoNovedad(models.TextChoices):
-    INCAPACIDAD = "INCAPACIDAD", "Incapacidad"
-    PERMISO = "PERMISO", "Permiso"
-    PERMISO_VOTACION = "PERMISO_VOTACION", "Permiso por votación"
-    VACACIONES = "VACACIONES", "Vacaciones"
-    DIA_FAMILIA = "DIA_FAMILIA", "Día de la familia"
-    CURSO = "CURSO", "Capacitación aprobada por gerencia"
-    REUNION = "REUNION", "Reunión autorizada por gerencia"
-    REUNION_GENERAL = "REUNION_GENERAL", "Reunión"
-    MANTENIMIENTO = "MANTENIMIENTO", "Mantenimiento autorizado"
-    FESTIVO = "FESTIVO", "Festivo"
-    TEST_EJERCICIO = "TEST_EJERCICIO", "Prueba/procedimiento (desplaza consultas)"
-    CIERRE_SALA = "CIERRE_SALA", "Cierre de sala"
-    SESION_EDUCATIVA = "SESION_EDUCATIVA", "Sesión educativa"
-    APOYO_SERVICIO = "APOYO_SERVICIO", "Apoyo a otro servicio"
-    OTRO = "OTRO", "Otro"
+class TipoNovedad(models.Model):
+    """Catálogo de tipos de novedad — editable desde /admin/ sin tocar código.
+
+    `codigo` es estable (se usa en formularios y en `seed_demo`); `ayuda` es
+    el texto de tooltip opcional que se muestra en el selector rápido del
+    módulo de novedades (ej. TEST_EJERCICIO).
+    """
+
+    codigo = models.SlugField(max_length=30, unique=True)
+    nombre = models.CharField(max_length=80)
+    ayuda = models.CharField(max_length=200, blank=True)
+    activo = models.BooleanField(default=True)
+    orden = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        verbose_name = "Tipo de novedad"
+        verbose_name_plural = "Tipos de novedad"
+        ordering = ["orden", "nombre"]
+
+    def __str__(self) -> str:
+        return self.nombre
+
+
+def _tipo_novedad_otro_pk():
+    """Default de `Novedad.tipo` cuando no se especifica (tests, seeds)."""
+    return TipoNovedad.objects.get_or_create(
+        codigo="OTRO", defaults={"nombre": "Otro", "orden": 14},
+    )[0].pk
 
 
 class Novedad(models.Model):
@@ -206,7 +218,10 @@ class Novedad(models.Model):
     capacidad_sala = models.ForeignKey(
         CapacidadSala, on_delete=models.CASCADE, related_name="novedades"
     )
-    tipo = models.CharField(max_length=20, choices=TipoNovedad.choices, default=TipoNovedad.OTRO)
+    tipo = models.ForeignKey(
+        TipoNovedad, on_delete=models.PROTECT, related_name="novedades",
+        default=_tipo_novedad_otro_pk,
+    )
     signo = models.CharField(max_length=10, choices=Signo.choices, default=Signo.DESCONTAR)
     citas_afectadas = models.PositiveIntegerField(default=0)
     descripcion = models.CharField(max_length=255, blank=True)
@@ -218,7 +233,7 @@ class Novedad(models.Model):
         ordering = ["capacidad_sala", "fecha"]
 
     def __str__(self) -> str:
-        return f"{self.get_signo_display()} {self.citas_afectadas} — {self.get_tipo_display()}"
+        return f"{self.get_signo_display()} {self.citas_afectadas} — {self.tipo.nombre}"
 
 
 class Periodicidad(models.TextChoices):

@@ -255,7 +255,7 @@ def _ctx_novedades(unidad, anio, mes, error=None):
         "vm": vm,
         "abierto": abierto,
         "error": error,
-        "tipos": TipoNovedad.choices,
+        "tipos": TipoNovedad.objects.filter(activo=True),
         "signos": Signo.choices,
     }
 

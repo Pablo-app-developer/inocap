@@ -59,10 +59,8 @@
       {% if abierto %}
       <div class="nov-form" id="nov-form-{{ cap.id }}">
         <select name="tipo" aria-label="Tipo de novedad">
-          {% for valor, etiqueta in tipos %}
-            <option value="{{ valor }}"
-              {% if valor == "TEST_EJERCICIO" %}title="Ej.: test de ejercicio, toma de electrolitos"{% endif %}
-            >{{ etiqueta }}</option>
+          {% for t in tipos %}
+            <option value="{{ t.codigo }}" {% if t.ayuda %}title="{{ t.ayuda }}"{% endif %}>{{ t.nombre }}</option>
           {% endfor %}
         </select>
         <select name="signo" aria-label="Signo">

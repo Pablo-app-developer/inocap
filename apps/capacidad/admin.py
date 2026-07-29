@@ -6,8 +6,16 @@ from .models import (
     ParametroMensual,
     ResumenMensual,
     TerminoAdicional,
+    TipoNovedad,
 )
 from .services import orm
+
+
+@admin.register(TipoNovedad)
+class TipoNovedadAdmin(admin.ModelAdmin):
+    list_display = ("nombre", "codigo", "activo", "orden")
+    list_editable = ("activo", "orden")
+    prepopulated_fields = {"codigo": ("nombre",)}
 
 
 class NovedadInline(admin.TabularInline):
