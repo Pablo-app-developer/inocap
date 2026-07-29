@@ -39,9 +39,10 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
-    "django.contrib.staticfiles",
-    # Apps del proyecto
+    # apps.core antes de staticfiles: así su comando runserver (default_port=8001)
+    # gana la resolución de Django (apps.get_app_configs() se recorre en reversa).
     "apps.core",
+    "django.contrib.staticfiles",
     "apps.calendario",
     "apps.capacidad",
     "apps.atenciones",
