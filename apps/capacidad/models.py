@@ -183,6 +183,7 @@ class TipoNovedad(models.TextChoices):
     PERMISO = "PERMISO", "Permiso"
     PERMISO_VOTACION = "PERMISO_VOTACION", "Permiso por votación"
     VACACIONES = "VACACIONES", "Vacaciones"
+    DIA_FAMILIA = "DIA_FAMILIA", "Día de la familia"
     CURSO = "CURSO", "Capacitación aprobada por gerencia"
     REUNION = "REUNION", "Reunión autorizada por gerencia"
     REUNION_GENERAL = "REUNION_GENERAL", "Reunión"
