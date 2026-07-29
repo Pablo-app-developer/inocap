@@ -202,8 +202,23 @@ a:hover { text-decoration: underline; }
 .flash.success { border-left-color: var(--success); background: color-mix(in srgb, var(--success) 8%, var(--surface)); }
 .flash.error   { border-left-color: var(--danger);  background: color-mix(in srgb, var(--danger) 8%, var(--surface)); }
 
-/* Sección "Crear mes" (tarjeta separada de los filtros de consulta) */
-.crear-mes-card { border-left: 3px solid var(--accent); margin: 0 0 1.4rem; }
+/* "Consultar período" y "Crear mes": dos tarjetas lado a lado, cada una con
+   su propio acento de color para que se distingan de un vistazo (no son la
+   misma acción ni el mismo formulario, aunque se ven parecidos). */
+.periodo-crear-grid {
+  grid-template-columns: 1fr 1fr; align-items: stretch; margin-bottom: 1.4rem;
+}
+@media (max-width: 780px) {
+  .periodo-crear-grid { grid-template-columns: 1fr; }
+}
+
+.periodo-card { border-left: 3px solid var(--brand); }
+.periodo-card h3 {
+  font-size: .85rem; text-transform: uppercase; letter-spacing: .05em;
+  color: var(--brand-strong); margin-bottom: .35rem;
+}
+
+.crear-mes-card { border-left: 3px solid var(--accent); }
 .crear-mes-card h3 {
   font-size: .85rem; text-transform: uppercase; letter-spacing: .05em;
   color: var(--accent); margin-bottom: .35rem;

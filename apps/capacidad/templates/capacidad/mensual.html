@@ -17,59 +17,67 @@
   </div></div>
 {% else %}
 
-<form method="get" class="toolbar" role="search">
-  <div class="field">
-    <label for="unidad">Unidad de negocio</label>
-    <select name="unidad" id="unidad">
-      {% for u in unidades %}
-        <option value="{{ u.id }}" {% if u.id == unidad_sel.id %}selected{% endif %}>{{ u.nombre }}</option>
-      {% endfor %}
-    </select>
+<div class="grid periodo-crear-grid">
+  <div class="card periodo-card">
+    <div class="card-body">
+      <h3>Consultar período</h3>
+      <p class="crear-mes-desc">Elige la unidad, el año y el mes que quieres ver o editar.</p>
+      <form method="get" class="toolbar" role="search" style="margin-bottom:0;">
+        <div class="field">
+          <label for="unidad">Unidad de negocio</label>
+          <select name="unidad" id="unidad">
+            {% for u in unidades %}
+              <option value="{{ u.id }}" {% if u.id == unidad_sel.id %}selected{% endif %}>{{ u.nombre }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="field">
+          <label for="anio">Año</label>
+          <input type="number" name="anio" id="anio" value="{{ anio_sel|unlocalize }}" min="2000" max="2100" style="width:6rem;">
+        </div>
+        <div class="field">
+          <label for="mes">Mes</label>
+          <select name="mes" id="mes">
+            {% for num, nombre in meses %}
+              <option value="{{ num }}" {% if num == mes_sel %}selected{% endif %}>{{ nombre }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <button class="btn primary" type="submit">Ver</button>
+      </form>
+    </div>
   </div>
-  <div class="field">
-    <label for="anio">Año</label>
-    <input type="number" name="anio" id="anio" value="{{ anio_sel|unlocalize }}" min="2000" max="2100" style="width:6rem;">
-  </div>
-  <div class="field">
-    <label for="mes">Mes</label>
-    <select name="mes" id="mes">
-      {% for num, nombre in meses %}
-        <option value="{{ num }}" {% if num == mes_sel %}selected{% endif %}>{{ nombre }}</option>
-      {% endfor %}
-    </select>
-  </div>
-  <button class="btn primary" type="submit">Ver</button>
-</form>
 
-<div class="card crear-mes-card">
-  <div class="card-body">
-    <h3>Crear mes</h3>
-    <p class="crear-mes-desc">
-      {% if origen_mes %}
-        Crea un mes nuevo copiando la parametrización de
-        <strong>{{ origen_mes.get_mes_display }} {{ origen_mes.anio|unlocalize }}</strong>
-        (sin novedades ni ajustes) y recalcula con el calendario del mes.
-      {% else %}
-        Crea el mes con las salas activas en cero.
-      {% endif %}
-    </p>
-    <form method="post" action="{% url 'capacidad:crear_mes' %}" class="toolbar" style="margin-bottom:0;">
-      {% csrf_token %}
-      <input type="hidden" name="unidad" value="{{ unidad_sel.id }}">
-      <div class="field">
-        <label for="crear-anio">Año</label>
-        <input type="number" name="anio" id="crear-anio" value="{{ sig_anio|unlocalize }}" min="2000" max="2100" style="width:6rem;">
-      </div>
-      <div class="field">
-        <label for="crear-mes">Mes</label>
-        <select name="mes" id="crear-mes">
-          {% for num, nombre in meses %}
-            <option value="{{ num }}" {% if num == sig_mes %}selected{% endif %}>{{ nombre }}</option>
-          {% endfor %}
-        </select>
-      </div>
-      <button class="btn" type="submit">＋ Crear mes</button>
-    </form>
+  <div class="card crear-mes-card">
+    <div class="card-body">
+      <h3>Crear mes</h3>
+      <p class="crear-mes-desc">
+        {% if origen_mes %}
+          Crea un mes nuevo copiando la parametrización de
+          <strong>{{ origen_mes.get_mes_display }} {{ origen_mes.anio|unlocalize }}</strong>
+          (sin novedades ni ajustes) y recalcula con el calendario del mes.
+        {% else %}
+          Crea el mes con las salas activas en cero.
+        {% endif %}
+      </p>
+      <form method="post" action="{% url 'capacidad:crear_mes' %}" class="toolbar" style="margin-bottom:0;">
+        {% csrf_token %}
+        <input type="hidden" name="unidad" value="{{ unidad_sel.id }}">
+        <div class="field">
+          <label for="crear-anio">Año</label>
+          <input type="number" name="anio" id="crear-anio" value="{{ sig_anio|unlocalize }}" min="2000" max="2100" style="width:6rem;">
+        </div>
+        <div class="field">
+          <label for="crear-mes">Mes</label>
+          <select name="mes" id="crear-mes">
+            {% for num, nombre in meses %}
+              <option value="{{ num }}" {% if num == sig_mes %}selected{% endif %}>{{ nombre }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <button class="btn" type="submit">＋ Crear mes</button>
+      </form>
+    </div>
   </div>
 </div>
 
