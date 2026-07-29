@@ -256,7 +256,9 @@ a:hover { text-decoration: underline; }
    de una fila de sala que ya está dentro de un .sede-card con su propio
    encabezado azul sólido — si también fuera azul sólido se confundían. */
 table.data.nov-tabla thead th {
-  position: static; background: var(--surface-2); color: var(--muted);
+  position: static;
+  background: color-mix(in srgb, var(--accent) 14%, var(--surface));
+  color: var(--accent);
   font-size: .68rem; border-bottom: 1px solid var(--border);
 }
 table.data.nov-tabla thead th:last-child { border-right: none; }
