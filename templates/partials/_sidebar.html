@@ -9,6 +9,8 @@
          href="{% url 'capacidad:novedades' %}?unidad={{ u.id }}">Novedades</a>
       <a class="sidebar-link {% if seccion == 'dinero' and unidad_sel.id == u.id %}active{% endif %}"
          href="{% url 'atenciones:dinero' %}?unidad={{ u.id }}">Capacidad en $</a>
+      <a class="sidebar-link {% if seccion == 'resumen_anual' and unidad_sel.id == u.id %}active{% endif %}"
+         href="{% url 'atenciones:resumen_anual' %}?unidad={{ u.id }}">Resumen anual</a>
     </div>
   {% empty %}
     <p class="sidebar-vacio">Sin unidades asignadas.</p>
